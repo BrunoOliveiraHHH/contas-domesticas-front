@@ -2,6 +2,6 @@
   <router-view />
 </template>
 
-<script setup>
+<script setup lang="ts">
 // Contas Domesticas - Frontend
 </script>

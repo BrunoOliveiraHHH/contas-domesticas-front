@@ -11,7 +11,7 @@
     <q-drawer v-model="leftDrawerOpen" show-if-above bordered>
       <q-list>
         <q-item-label header>Menu</q-item-label>
-        <q-item v-for="l in links" :key="l.to" clickable :to="l.to" exact>
+        <q-item v-for="l in links" :key="l.label" clickable :to="l.to" exact>
           <q-item-section avatar><q-icon :name="l.icon" /></q-item-section>
           <q-item-section>{{ l.label }}</q-item-section>
         </q-item>
@@ -24,13 +24,15 @@
   </q-layout>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from 'stores/auth'
 
 const leftDrawerOpen = ref(false)
-const toggleLeftDrawer = () => { leftDrawerOpen.value = !leftDrawerOpen.value }
+const toggleLeftDrawer = () => {
+  leftDrawerOpen.value = !leftDrawerOpen.value
+}
 
 // Placeholder do menu (as rotas serao criadas nos blocos de features)
 const links = [
@@ -43,5 +45,8 @@ const links = [
 
 const router = useRouter()
 const auth = useAuthStore()
-const sair = () => { auth.logout(); router.push('/login') }
+const sair = () => {
+  auth.logout()
+  router.push('/login')
+}
 </script>

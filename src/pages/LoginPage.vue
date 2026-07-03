@@ -6,9 +6,14 @@
         <div class="text-caption text-grey">Contas Domesticas</div>
       </q-card-section>
       <q-card-section>
-        <q-form @submit="entrar" class="q-gutter-md">
+        <q-form class="q-gutter-md" @submit="entrar">
           <q-input v-model="login" label="Login" :rules="[(v) => !!v || 'Informe o login']" />
-          <q-input v-model="senha" type="password" label="Senha" :rules="[(v) => !!v || 'Informe a senha']" />
+          <q-input
+            v-model="senha"
+            type="password"
+            label="Senha"
+            :rules="[(v) => !!v || 'Informe a senha']"
+          />
           <q-btn type="submit" color="primary" label="Entrar" class="full-width" :loading="carregando" />
         </q-form>
       </q-card-section>
@@ -16,7 +21,7 @@
   </q-page>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from 'stores/auth'
