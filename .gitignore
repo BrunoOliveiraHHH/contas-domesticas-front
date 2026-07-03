@@ -1,0 +1,22 @@
+node_modules
+.DS_Store
+.thumbs.db
+*.log
+
+# Quasar / build
+/dist
+/.quasar
+/src-capacitor
+/src-cordova
+.eslintcache
+
+# Env
+.env.local
+.env.*.local
+
+# Editors
+.idea
+*.suo
+*.ntvs*
+*.njsproj
+*.sln

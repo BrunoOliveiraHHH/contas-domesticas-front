@@ -1,0 +1,47 @@
+<template>
+  <q-layout view="lHh Lpr lFf">
+    <q-header elevated>
+      <q-toolbar>
+        <q-btn flat dense round icon="menu" aria-label="Menu" @click="toggleLeftDrawer" />
+        <q-toolbar-title>Contas Domesticas</q-toolbar-title>
+        <q-btn flat dense round icon="logout" aria-label="Sair" @click="sair" />
+      </q-toolbar>
+    </q-header>
+
+    <q-drawer v-model="leftDrawerOpen" show-if-above bordered>
+      <q-list>
+        <q-item-label header>Menu</q-item-label>
+        <q-item v-for="l in links" :key="l.to" clickable :to="l.to" exact>
+          <q-item-section avatar><q-icon :name="l.icon" /></q-item-section>
+          <q-item-section>{{ l.label }}</q-item-section>
+        </q-item>
+      </q-list>
+    </q-drawer>
+
+    <q-page-container>
+      <router-view />
+    </q-page-container>
+  </q-layout>
+</template>
+
+<script setup>
+import { ref } from 'vue'
+import { useRouter } from 'vue-router'
+import { useAuthStore } from 'stores/auth'
+
+const leftDrawerOpen = ref(false)
+const toggleLeftDrawer = () => { leftDrawerOpen.value = !leftDrawerOpen.value }
+
+// Placeholder do menu (as rotas serao criadas nos blocos de features)
+const links = [
+  { label: 'Dashboard', icon: 'dashboard', to: '/' },
+  { label: 'Financas', icon: 'account_balance_wallet', to: '/' },
+  { label: 'Compras', icon: 'shopping_cart', to: '/' },
+  { label: 'Investimentos', icon: 'trending_up', to: '/' },
+  { label: 'Configuracao', icon: 'settings', to: '/' }
+]
+
+const router = useRouter()
+const auth = useAuthStore()
+const sair = () => { auth.logout(); router.push('/login') }
+</script>
