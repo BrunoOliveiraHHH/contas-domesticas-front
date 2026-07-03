@@ -1,8 +1,8 @@
-import { store } from 'quasar/wrappers'
+import { defineStore } from '#q-app/wrappers'
 import { createPinia } from 'pinia'
 import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
 
-export default store(() => {
+export default defineStore(() => {
   const pinia = createPinia()
   pinia.use(piniaPluginPersistedstate)
   return pinia

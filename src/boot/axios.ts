@@ -1,4 +1,4 @@
-import { boot } from 'quasar/wrappers'
+import { defineBoot } from '#q-app/wrappers'
 import axios, { type AxiosInstance } from 'axios'
 import axiosRetry from 'axios-retry'
 import { Notify } from 'quasar'
@@ -39,7 +39,7 @@ api.interceptors.response.use(
   }
 )
 
-export default boot(({ app }) => {
+export default defineBoot(({ app }) => {
   app.config.globalProperties.$api = api
 })
 

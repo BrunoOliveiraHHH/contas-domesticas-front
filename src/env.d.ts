@@ -1,3 +1,4 @@
+/// <reference types="@quasar/app-vite" />
 /* eslint-disable */
 declare namespace NodeJS {
   interface ProcessEnv {

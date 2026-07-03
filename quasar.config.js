@@ -1,7 +1,7 @@
 /* eslint-env node */
-import { configure } from 'quasar/wrappers'
+import { defineConfig } from '#q-app/wrappers'
 
-export default configure(function (/* ctx */) {
+export default defineConfig(function (/* ctx */) {
   return {
     boot: ['i18n', 'axios', 'vue-query', 'echarts'],
 

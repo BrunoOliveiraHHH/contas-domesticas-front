@@ -1,4 +1,4 @@
-import { boot } from 'quasar/wrappers'
+import { defineBoot } from '#q-app/wrappers'
 import { use } from 'echarts/core'
 import { CanvasRenderer } from 'echarts/renderers'
 import { LineChart, BarChart, PieChart } from 'echarts/charts'
@@ -24,6 +24,6 @@ use([
 ])
 
 // Componente global <v-chart />
-export default boot(({ app }) => {
+export default defineBoot(({ app }) => {
   app.component('VChart', VChart)
 })
