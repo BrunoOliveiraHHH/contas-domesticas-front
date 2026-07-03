@@ -1,28 +1,3 @@
 {
-  "compilerOptions": {
-    "target": "ESNext",
-    "module": "ESNext",
-    "moduleResolution": "Bundler",
-    "strict": true,
-    "jsx": "preserve",
-    "resolveJsonModule": true,
-    "isolatedModules": true,
-    "esModuleInterop": true,
-    "skipLibCheck": true,
-    "useDefineForClassFields": true,
-    "lib": ["ESNext", "DOM", "DOM.Iterable"],
-    "types": ["node", "quasar"],
-    "baseUrl": ".",
-    "paths": {
-      "src/*": ["src/*"],
-      "app/*": ["*"],
-      "components/*": ["src/components/*"],
-      "layouts/*": ["src/layouts/*"],
-      "pages/*": ["src/pages/*"],
-      "stores/*": ["src/stores/*"],
-      "boot/*": ["src/boot/*"]
-    }
-  },
-  "include": ["src/**/*.ts", "src/**/*.d.ts", "src/**/*.vue", "src-pwa/**/*.ts", "test/**/*.ts"],
-  "exclude": ["node_modules", "dist", ".quasar"]
+  "extends": "./.quasar/tsconfig.json"
 }
