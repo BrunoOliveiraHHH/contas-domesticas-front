@@ -11,7 +11,24 @@ const routes: RouteRecordRaw[] = [
     meta: { requiresAuth: true },
     children: [
       { path: '', name: 'dashboard', component: () => import('pages/IndexPage.vue') },
-      { path: 'carteiras', name: 'carteiras', component: () => import('pages/CarteirasPage.vue') }
+      { path: 'carteiras', name: 'carteiras', component: () => import('pages/CarteirasPage.vue') },
+      {
+        path: 'categorias',
+        name: 'categorias',
+        component: () => import('pages/CategoriasPage.vue')
+      },
+      {
+        path: 'formas-pagamento',
+        name: 'formas-pagamento',
+        component: () => import('pages/FormasPagamentoPage.vue')
+      },
+      { path: 'mercados', name: 'mercados', component: () => import('pages/MercadosPage.vue') },
+      {
+        path: 'unidades-medida',
+        name: 'unidades-medida',
+        component: () => import('pages/UnidadesMedidaPage.vue')
+      },
+      { path: 'produtos', name: 'produtos', component: () => import('pages/ProdutosPage.vue') }
     ]
   },
   {

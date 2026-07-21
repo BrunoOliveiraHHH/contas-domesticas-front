@@ -38,6 +38,11 @@ const toggleLeftDrawer = () => {
 const links = [
   { label: 'Dashboard', icon: 'dashboard', to: '/' },
   { label: 'Carteiras', icon: 'account_balance_wallet', to: '/carteiras' },
+  { label: 'Categorias', icon: 'category', to: '/categorias' },
+  { label: 'Formas de pagamento', icon: 'payments', to: '/formas-pagamento' },
+  { label: 'Mercados', icon: 'store', to: '/mercados' },
+  { label: 'Unidades', icon: 'straighten', to: '/unidades-medida' },
+  { label: 'Produtos', icon: 'inventory_2', to: '/produtos' },
   { label: 'Compras', icon: 'shopping_cart', to: '/' },
   { label: 'Investimentos', icon: 'trending_up', to: '/' },
   { label: 'Configuracao', icon: 'settings', to: '/' }
