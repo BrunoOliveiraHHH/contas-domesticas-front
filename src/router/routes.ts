@@ -55,7 +55,18 @@ const routes: RouteRecordRaw[] = [
         path: 'calculadoras',
         name: 'calculadoras',
         component: () => import('pages/CalculadorasPage.vue')
-      }
+      },
+      {
+        path: 'recorrencias',
+        name: 'recorrencias',
+        component: () => import('pages/RecorrenciasPage.vue')
+      },
+      {
+        path: 'parcelamento',
+        name: 'parcelamento',
+        component: () => import('pages/ParcelamentoPage.vue')
+      },
+      { path: 'rateio', name: 'rateio', component: () => import('pages/RateioPage.vue') }
     ]
   },
   {

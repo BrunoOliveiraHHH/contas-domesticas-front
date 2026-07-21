@@ -4,7 +4,9 @@ import {
   despesasService,
   type Lancamento,
   type ReceitaRequest,
-  type DespesaRequest
+  type DespesaRequest,
+  type ParcelamentoRequest,
+  type RateioRequest
 } from 'src/services/lancamentos'
 
 export const useReceitasStore = defineStore('receitas', {
@@ -49,6 +51,15 @@ export const useDespesasStore = defineStore('despesas', {
     async pagar(id: number) {
       await despesasService.pagar(id)
       await this.carregar()
+    },
+    async parcelar(req: ParcelamentoRequest) {
+      const parcelas = await despesasService.parcelar(req)
+      await this.carregar()
+      return parcelas
+    },
+    async ratear(id: number, req: RateioRequest) {
+      const rateio = await despesasService.ratear(id, req)
+      return rateio
     },
     async remover(id: number) {
       await despesasService.remover(id)
