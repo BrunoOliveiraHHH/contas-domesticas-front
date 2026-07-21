@@ -21,7 +21,7 @@
     "prepare": "husky"
   },
   "dependencies": {
-    "@quasar/extras": "^1.16.12",
+    "@quasar/extras": "^2.0.2",
     "@tanstack/vue-query": "^5.51.0",
     "@vee-validate/zod": "^4.13.2",
     "@vueuse/core": "^10.11.0",
