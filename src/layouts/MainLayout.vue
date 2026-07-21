@@ -45,7 +45,7 @@ const links = [
   { label: 'Mercados', icon: 'store', to: '/mercados' },
   { label: 'Unidades', icon: 'straighten', to: '/unidades-medida' },
   { label: 'Produtos', icon: 'inventory_2', to: '/produtos' },
-  { label: 'Compras', icon: 'shopping_cart', to: '/' },
+  { label: 'Compras', icon: 'shopping_cart', to: '/listas-compra' },
   { label: 'Investimentos', icon: 'savings', to: '/investimentos' },
   { label: 'Configuracao', icon: 'settings', to: '/' }
 ]
