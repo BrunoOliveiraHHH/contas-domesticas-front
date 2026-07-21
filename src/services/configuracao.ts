@@ -29,11 +29,21 @@ export interface PreferenciaRequest {
 
 const base = '/parametros'
 
+export interface ImpostoIr {
+  dias: number
+  chave: string
+  aliquota: number
+}
+
 export const parametrosService = {
   listar: () => api.get<Parametro[]>(base).then((r) => r.data),
   vigente: (chave: string, data?: string) =>
     api
       .get<Parametro>(`${base}/vigente/${chave}`, { params: data ? { data } : {} })
+      .then((r) => r.data),
+  impostoIr: (dias: number, data?: string) =>
+    api
+      .get<ImpostoIr>(`${base}/imposto-ir`, { params: { dias, ...(data ? { data } : {}) } })
       .then((r) => r.data),
   criar: (body: ParametroRequest) => api.post<Parametro>(base, body).then((r) => r.data),
   atualizar: (id: number, body: ParametroRequest) =>
