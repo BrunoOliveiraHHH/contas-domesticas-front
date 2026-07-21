@@ -28,7 +28,9 @@ const routes: RouteRecordRaw[] = [
         name: 'unidades-medida',
         component: () => import('pages/UnidadesMedidaPage.vue')
       },
-      { path: 'produtos', name: 'produtos', component: () => import('pages/ProdutosPage.vue') }
+      { path: 'produtos', name: 'produtos', component: () => import('pages/ProdutosPage.vue') },
+      { path: 'receitas', name: 'receitas', component: () => import('pages/ReceitasPage.vue') },
+      { path: 'despesas', name: 'despesas', component: () => import('pages/DespesasPage.vue') }
     ]
   },
   {

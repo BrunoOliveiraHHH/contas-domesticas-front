@@ -37,6 +37,8 @@ const toggleLeftDrawer = () => {
 // Menu (vai crescendo conforme as features sao adicionadas)
 const links = [
   { label: 'Dashboard', icon: 'dashboard', to: '/' },
+  { label: 'Receitas', icon: 'trending_up', to: '/receitas' },
+  { label: 'Despesas', icon: 'trending_down', to: '/despesas' },
   { label: 'Carteiras', icon: 'account_balance_wallet', to: '/carteiras' },
   { label: 'Categorias', icon: 'category', to: '/categorias' },
   { label: 'Formas de pagamento', icon: 'payments', to: '/formas-pagamento' },
