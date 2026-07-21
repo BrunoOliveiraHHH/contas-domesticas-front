@@ -34,10 +34,10 @@ const toggleLeftDrawer = () => {
   leftDrawerOpen.value = !leftDrawerOpen.value
 }
 
-// Placeholder do menu (as rotas serao criadas nos blocos de features)
+// Menu (vai crescendo conforme as features sao adicionadas)
 const links = [
   { label: 'Dashboard', icon: 'dashboard', to: '/' },
-  { label: 'Financas', icon: 'account_balance_wallet', to: '/' },
+  { label: 'Carteiras', icon: 'account_balance_wallet', to: '/carteiras' },
   { label: 'Compras', icon: 'shopping_cart', to: '/' },
   { label: 'Investimentos', icon: 'trending_up', to: '/' },
   { label: 'Configuracao', icon: 'settings', to: '/' }
