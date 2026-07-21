@@ -51,7 +51,8 @@ const links = [
   { label: 'Compras', icon: 'shopping_cart', to: '/listas-compra' },
   { label: 'Investimentos', icon: 'savings', to: '/investimentos' },
   { label: 'Calculadoras', icon: 'calculate', to: '/calculadoras' },
-  { label: 'Configuracao', icon: 'settings', to: '/configuracao' }
+  { label: 'Configuracao', icon: 'settings', to: '/configuracao' },
+  { label: 'Sincronizacao', icon: 'sync', to: '/sincronizacao' }
 ]
 
 const router = useRouter()
