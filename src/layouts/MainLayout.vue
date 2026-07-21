@@ -47,7 +47,7 @@ const links = [
   { label: 'Produtos', icon: 'inventory_2', to: '/produtos' },
   { label: 'Compras', icon: 'shopping_cart', to: '/listas-compra' },
   { label: 'Investimentos', icon: 'savings', to: '/investimentos' },
-  { label: 'Configuracao', icon: 'settings', to: '/' }
+  { label: 'Configuracao', icon: 'settings', to: '/configuracao' }
 ]
 
 const router = useRouter()
