@@ -14,6 +14,9 @@
       flat
       bordered
     >
+      <template #body-cell-categoria="props">
+        <q-td :props="props">{{ nomeCategoria(props.row.categoriaId) }}</q-td>
+      </template>
       <template #body-cell-ativa="props">
         <q-td :props="props">
           <q-badge
@@ -97,6 +100,7 @@ import { useQuasar } from 'quasar'
 import { useRecorrenciasStore } from 'stores/recorrencias'
 import { useCarteirasStore } from 'stores/carteiras'
 import { useCategoriaStore } from 'stores/categorias'
+import { formatarMoeda } from 'src/utils/format'
 import type { Recorrencia, RecorrenciaRequest, Frequencia } from 'src/services/recorrencias'
 
 const { t } = useI18n()
@@ -110,10 +114,16 @@ const tipos = ['RECEITA', 'DESPESA']
 const frequencias: Frequencia[] = ['SEMANAL', 'MENSAL', 'ANUAL']
 
 const colunas = [
-  { name: 'descricao', label: 'Descricao', field: 'descricao', align: 'left' as const },
-  { name: 'valor', label: 'Valor', field: 'valor', align: 'right' as const },
-  { name: 'tipo', label: 'Tipo', field: 'tipo', align: 'left' as const },
-  { name: 'frequencia', label: 'Frequencia', field: 'frequencia', align: 'left' as const },
+  { name: 'descricao', label: 'Nome', field: 'descricao', align: 'left' as const },
+  { name: 'categoria', label: 'Categoria', field: 'categoriaId', align: 'left' as const },
+  {
+    name: 'valor',
+    label: 'Valor',
+    field: 'valor',
+    align: 'right' as const,
+    format: (v: number) => formatarMoeda(v)
+  },
+  { name: 'frequencia', label: 'Frequência', field: 'frequencia', align: 'left' as const },
   { name: 'ativa', label: 'Ativa', field: 'ativa', align: 'left' as const },
   { name: 'acoes', label: '', field: 'acoes', align: 'right' as const }
 ]
@@ -122,6 +132,9 @@ const carteiraOpcoes = computed(() => carteiras.itens.map((c) => ({ label: c.nom
 const categoriaOpcoes = computed(() =>
   categorias.itens.map((c) => ({ label: c.nome as string, value: c.id }))
 )
+function nomeCategoria(id: number) {
+  return categorias.itens.find((c) => c.id === id)?.nome ?? '-'
+}
 
 const hoje = () => new Date().toISOString().slice(0, 10)
 

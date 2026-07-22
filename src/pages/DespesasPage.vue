@@ -14,6 +14,12 @@
       flat
       bordered
     >
+      <template #body-cell-categoria="props">
+        <q-td :props="props">{{ nomeCategoria(props.row.categoriaId) }}</q-td>
+      </template>
+      <template #body-cell-carteira="props">
+        <q-td :props="props">{{ nomeCarteira(props.row.carteiraId) }}</q-td>
+      </template>
       <template #body-cell-status="props">
         <q-td :props="props">
           <q-badge :color="corStatus(props.row.status)" :label="props.row.status || '-'" />
@@ -146,6 +152,8 @@ const categorias = useCategoriaStore()
 
 const colunas = [
   { name: 'descricao', label: 'Nome', field: 'descricao', align: 'left' as const, sortable: true },
+  { name: 'categoria', label: 'Categoria', field: 'categoriaId', align: 'left' as const },
+  { name: 'carteira', label: 'Carteira', field: 'carteiraId', align: 'left' as const },
   {
     name: 'valor',
     label: 'Valor',
@@ -171,6 +179,13 @@ const categoriaOpcoes = computed(() =>
     .filter((c) => c.tipo === 'DESPESA')
     .map((c) => ({ label: c.nome as string, value: c.id }))
 )
+
+function nomeCategoria(id: number) {
+  return categorias.itens.find((c) => c.id === id)?.nome ?? '-'
+}
+function nomeCarteira(id: number) {
+  return carteiras.itens.find((c) => c.id === id)?.nome ?? '-'
+}
 
 const tipoOpcoes = [
   { label: 'Única', value: 'UNICA' },

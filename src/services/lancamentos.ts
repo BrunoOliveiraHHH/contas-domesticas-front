@@ -11,6 +11,8 @@ export interface Lancamento {
   status?: 'PAGO' | 'PENDENTE' | 'ATRASADO' | null
   carteiraId: number
   categoriaId: number
+  dataInicio?: string | null
+  dataFim?: string | null
 }
 
 export interface ReceitaRequest {
@@ -21,6 +23,8 @@ export interface ReceitaRequest {
   categoriaId: number
   formaPagamentoId?: number | null
   observacao?: string | null
+  dataInicio?: string | null
+  dataFim?: string | null
 }
 
 export interface DespesaRequest extends ReceitaRequest {

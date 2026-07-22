@@ -14,6 +14,15 @@
       flat
       bordered
     >
+      <template #body-cell-categoria="props">
+        <q-td :props="props">{{ nomeCategoria(props.row.categoriaId) }}</q-td>
+      </template>
+      <template #body-cell-carteira="props">
+        <q-td :props="props">{{ nomeCarteira(props.row.carteiraId) }}</q-td>
+      </template>
+      <template #body-cell-periodo="props">
+        <q-td :props="props">{{ periodoLabel(props.row) }}</q-td>
+      </template>
       <template #body-cell-acoes="props">
         <q-td :props="props" class="text-right">
           <q-btn flat dense round icon="delete" color="negative" @click="remover(props.row)" />
@@ -22,7 +31,7 @@
     </q-table>
 
     <q-dialog v-model="dialog">
-      <q-card style="min-width: 360px">
+      <q-card style="min-width: 380px">
         <q-card-section class="text-h6">Nova receita</q-card-section>
         <q-card-section>
           <q-form class="q-gutter-md" @submit="salvar">
@@ -42,6 +51,11 @@
               emit-value
               map-options
             />
+            <q-input v-model="form.dataInicio" type="date" label="Início" />
+            <q-input v-model="form.dataFim" type="date" label="Fim (vazio = sem prazo)" clearable />
+            <div class="text-caption text-grey">
+              Sem data fim, a receita vale por tempo indeterminado.
+            </div>
             <div class="row justify-end q-gutter-sm">
               <q-btn v-close-popup flat label="Cancelar" />
               <q-btn type="submit" color="primary" label="Salvar" :loading="salvando" />
@@ -71,13 +85,8 @@ const carteiras = useCarteirasStore()
 const categorias = useCategoriaStore()
 
 const colunas = [
-  {
-    name: 'descricao',
-    label: 'Descricao',
-    field: 'descricao',
-    align: 'left' as const,
-    sortable: true
-  },
+  { name: 'descricao', label: 'Nome', field: 'descricao', align: 'left' as const, sortable: true },
+  { name: 'categoria', label: 'Categoria', field: 'categoriaId', align: 'left' as const },
   {
     name: 'valor',
     label: 'Valor',
@@ -86,13 +95,8 @@ const colunas = [
     sortable: true,
     format: (v: number) => formatarMoeda(v)
   },
-  {
-    name: 'dataCompetencia',
-    label: 'Competencia',
-    field: 'dataCompetencia',
-    align: 'left' as const,
-    format: (v: string) => formatarData(v)
-  },
+  { name: 'carteira', label: 'Carteira', field: 'carteiraId', align: 'left' as const },
+  { name: 'periodo', label: 'Período', field: 'dataInicio', align: 'left' as const },
   { name: 'acoes', label: '', field: 'acoes', align: 'right' as const }
 ]
 
@@ -103,31 +107,66 @@ const categoriaOpcoes = computed(() =>
     .map((c) => ({ label: c.nome as string, value: c.id }))
 )
 
+function nomeCategoria(id: number) {
+  return categorias.itens.find((c) => c.id === id)?.nome ?? '-'
+}
+function nomeCarteira(id: number) {
+  return carteiras.itens.find((c) => c.id === id)?.nome ?? '-'
+}
+function periodoLabel(row: Lancamento) {
+  const ini = formatarData(row.dataInicio)
+  return row.dataFim ? `${ini} – ${formatarData(row.dataFim)}` : `${ini} – sem prazo`
+}
+
+const hoje = () => new Date().toISOString().slice(0, 10)
+
 const dialog = ref(false)
 const salvando = ref(false)
-const form = reactive<ReceitaRequest>({
+const form = reactive<{
+  descricao: string
+  valor: number
+  categoriaId: number
+  carteiraId: number
+  dataInicio: string
+  dataFim: string | null
+}>({
   descricao: '',
   valor: 0,
-  dataCompetencia: new Date().toISOString().slice(0, 10),
+  categoriaId: 0,
   carteiraId: 0,
-  categoriaId: 0
+  dataInicio: hoje(),
+  dataFim: null
 })
 
 function abrirNova() {
   Object.assign(form, {
     descricao: '',
     valor: 0,
-    dataCompetencia: new Date().toISOString().slice(0, 10),
+    categoriaId: 0,
     carteiraId: 0,
-    categoriaId: 0
+    dataInicio: hoje(),
+    dataFim: null
   })
   dialog.value = true
 }
 
 async function salvar() {
+  if (!form.descricao || !form.categoriaId || !form.carteiraId || !form.dataInicio) {
+    $q.notify({ type: 'warning', message: 'Preencha nome, categoria, carteira e início' })
+    return
+  }
   salvando.value = true
   try {
-    await store.salvar({ ...form })
+    const req: ReceitaRequest = {
+      descricao: form.descricao,
+      valor: form.valor,
+      dataCompetencia: form.dataInicio,
+      carteiraId: form.carteiraId,
+      categoriaId: form.categoriaId,
+      dataInicio: form.dataInicio,
+      dataFim: form.dataFim
+    }
+    await store.salvar(req)
     dialog.value = false
     $q.notify({ type: 'positive', message: 'Receita salva' })
   } catch {
