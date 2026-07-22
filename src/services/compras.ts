@@ -74,6 +74,8 @@ export const itensCompraService = {
     api.get<ItemCompra[]>(`${base}/${listaId}/itens`).then((r) => r.data),
   adicionar: (listaId: number, body: ItemCompraRequest) =>
     api.post<ItemCompra>(`${base}/${listaId}/itens`, body).then((r) => r.data),
+  reporEstoque: (listaId: number) =>
+    api.post<ItemCompra[]>(`${base}/${listaId}/repor-estoque`, {}).then((r) => r.data),
   escolher: (itemId: number, mercadoId: number) =>
     api.put<ItemCompra>(`/itens/${itemId}/escolha`, { mercadoId }).then((r) => r.data),
   remover: (itemId: number) => api.delete(`/itens/${itemId}`).then(() => undefined)

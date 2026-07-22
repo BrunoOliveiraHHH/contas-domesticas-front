@@ -5,12 +5,16 @@ export interface Produto {
   nome?: string
   descricao?: string
   codigoBarras?: string
+  estoqueMinimo?: number
+  estoqueAtual?: number
 }
 
 export type ProdutoRequest = {
   nome?: string
   descricao?: string
   codigoBarras?: string
+  estoqueMinimo?: number
+  estoqueAtual?: number
 }
 
 const base = '/produtos'

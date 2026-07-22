@@ -12,6 +12,16 @@
       <q-space />
       <q-btn
         v-if="store.listaAtual?.status === 'ABERTA'"
+        outline
+        color="secondary"
+        icon="inventory"
+        label="Repor estoque"
+        class="q-mr-sm"
+        :loading="repondo"
+        @click="reporEstoque"
+      />
+      <q-btn
+        v-if="store.listaAtual?.status === 'ABERTA'"
         color="primary"
         icon="add"
         label="Item"
@@ -214,6 +224,24 @@ function nomeMercado(id: number | null) {
 }
 
 const salvando = ref(false)
+
+// Repor estoque (adiciona os produtos abaixo do minimo)
+const repondo = ref(false)
+async function reporEstoque() {
+  repondo.value = true
+  try {
+    const adicionados = await store.reporEstoque(listaId)
+    if (adicionados.length) {
+      $q.notify({ type: 'positive', message: `${adicionados.length} item(ns) adicionado(s)` })
+    } else {
+      $q.notify({ type: 'info', message: 'Nenhum produto abaixo do mínimo' })
+    }
+  } catch {
+    $q.notify({ type: 'negative', message: 'Erro ao repor estoque' })
+  } finally {
+    repondo.value = false
+  }
+}
 
 // Novo item
 const dialogItem = ref(false)

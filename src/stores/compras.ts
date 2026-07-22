@@ -59,6 +59,11 @@ export const useComprasStore = defineStore('compras', {
       await itensCompraService.adicionar(listaId, req)
       await this.carregarItens(listaId)
     },
+    async reporEstoque(listaId: number) {
+      const adicionados = await itensCompraService.reporEstoque(listaId)
+      await this.carregarItens(listaId)
+      return adicionados
+    },
     async escolherMercado(listaId: number, itemId: number, mercadoId: number) {
       await itensCompraService.escolher(itemId, mercadoId)
       await this.carregarItens(listaId)
