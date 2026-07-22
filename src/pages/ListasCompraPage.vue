@@ -107,14 +107,14 @@ import { useQuasar } from 'quasar'
 import { useRouter } from 'vue-router'
 import { useComprasStore } from 'stores/compras'
 import { useCarteirasStore } from 'stores/carteiras'
-import { useCategoriasStore } from 'stores/categorias'
+import { useCategoriaStore } from 'stores/categorias'
 import type { ListaCompra, ListaCompraRequest, StatusLista, TipoLista } from 'src/services/compras'
 
 const $q = useQuasar()
 const router = useRouter()
 const store = useComprasStore()
 const carteiras = useCarteirasStore()
-const categorias = useCategoriasStore()
+const categorias = useCategoriaStore()
 
 const tipos: TipoLista[] = ['MANTIMENTOS', 'CONSTRUCAO']
 const statusOpcoes: StatusLista[] = ['ABERTA', 'FECHADA', 'ARQUIVADA']

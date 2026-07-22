@@ -63,13 +63,13 @@ import { computed, onMounted, reactive, ref } from 'vue'
 import { useQuasar } from 'quasar'
 import { useReceitasStore } from 'stores/lancamentos'
 import { useCarteirasStore } from 'stores/carteiras'
-import { useCategoriasStore } from 'stores/categorias'
+import { useCategoriaStore } from 'stores/categorias'
 import type { Lancamento, ReceitaRequest } from 'src/services/lancamentos'
 
 const $q = useQuasar()
 const store = useReceitasStore()
 const carteiras = useCarteirasStore()
-const categorias = useCategoriasStore()
+const categorias = useCategoriaStore()
 
 const colunas = [
   {

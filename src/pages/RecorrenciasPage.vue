@@ -95,13 +95,13 @@ import { computed, onMounted, reactive, ref } from 'vue'
 import { useQuasar } from 'quasar'
 import { useRecorrenciasStore } from 'stores/recorrencias'
 import { useCarteirasStore } from 'stores/carteiras'
-import { useCategoriasStore } from 'stores/categorias'
+import { useCategoriaStore } from 'stores/categorias'
 import type { Recorrencia, RecorrenciaRequest, Frequencia } from 'src/services/recorrencias'
 
 const $q = useQuasar()
 const store = useRecorrenciasStore()
 const carteiras = useCarteirasStore()
-const categorias = useCategoriasStore()
+const categorias = useCategoriaStore()
 
 const tipos = ['RECEITA', 'DESPESA']
 const frequencias: Frequencia[] = ['SEMANAL', 'MENSAL', 'ANUAL']

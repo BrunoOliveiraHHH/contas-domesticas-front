@@ -46,13 +46,13 @@ import { computed, onMounted, reactive, ref } from 'vue'
 import { useQuasar } from 'quasar'
 import { useDespesasStore } from 'stores/lancamentos'
 import { useCarteirasStore } from 'stores/carteiras'
-import { useCategoriasStore } from 'stores/categorias'
+import { useCategoriaStore } from 'stores/categorias'
 import type { Lancamento, ParcelamentoRequest } from 'src/services/lancamentos'
 
 const $q = useQuasar()
 const store = useDespesasStore()
 const carteiras = useCarteirasStore()
-const categorias = useCategoriasStore()
+const categorias = useCategoriaStore()
 
 const carteiraOpcoes = computed(() => carteiras.itens.map((c) => ({ label: c.nome, value: c.id })))
 const categoriaOpcoes = computed(() =>
