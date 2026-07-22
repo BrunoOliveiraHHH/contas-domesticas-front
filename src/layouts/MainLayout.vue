@@ -1,16 +1,27 @@
 <template>
   <q-layout view="lHh Lpr lFf">
-    <q-header elevated>
+    <q-header class="cd-header">
       <q-toolbar>
         <q-btn flat dense round icon="menu" aria-label="Menu" @click="toggleLeftDrawer" />
-        <q-toolbar-title>Contas Domesticas</q-toolbar-title>
+        <q-toolbar-title class="row items-center no-wrap">
+          <q-icon name="account_balance_wallet" class="q-mr-sm" />
+          Contas Domesticas
+        </q-toolbar-title>
+        <q-btn
+          flat
+          dense
+          round
+          :icon="dark ? 'light_mode' : 'dark_mode'"
+          :aria-label="dark ? 'Tema claro' : 'Tema escuro'"
+          @click="alternarTema"
+        />
         <q-btn flat dense round icon="logout" aria-label="Sair" @click="sair" />
       </q-toolbar>
     </q-header>
 
     <q-drawer v-model="leftDrawerOpen" show-if-above bordered>
-      <q-list>
-        <q-item-label header>Menu</q-item-label>
+      <q-list padding>
+        <q-item-label header class="cd-section-title">Menu</q-item-label>
         <q-item v-for="l in links" :key="l.label" clickable :to="l.to" exact>
           <q-item-section avatar><q-icon :name="l.icon" /></q-item-section>
           <q-item-section>{{ l.label }}</q-item-section>
@@ -27,11 +38,22 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { useQuasar } from 'quasar'
 import { useAuthStore } from 'stores/auth'
 
+const $q = useQuasar()
 const leftDrawerOpen = ref(false)
 const toggleLeftDrawer = () => {
   leftDrawerOpen.value = !leftDrawerOpen.value
+}
+
+// Tema (claro/escuro) — persistido em localStorage
+const dark = ref(localStorage.getItem('cd_dark') === '1')
+$q.dark.set(dark.value)
+function alternarTema() {
+  dark.value = !dark.value
+  $q.dark.set(dark.value)
+  localStorage.setItem('cd_dark', dark.value ? '1' : '0')
 }
 
 // Menu (vai crescendo conforme as features sao adicionadas)

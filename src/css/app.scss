@@ -1,1 +1,105 @@
-// App global styles
+// Estilos globais do Contas Domesticas — paleta identica ao projeto anterior.
+
+:root {
+  --cd-primary: #613178;
+  --cd-secondary: #8b5a96;
+  --cd-accent: #d82a76;
+  --cd-accent-hover: #c72d7b;
+  --cd-text: #1a1a2e;
+  --cd-text-2: #64648c;
+  --cd-bg: #f4f6fb;
+  --cd-card: #ffffff;
+  --cd-border: #bb97ba;
+  --cd-border-light: #e8e0e8;
+  --cd-shadow: 0 4px 18px rgba(97, 49, 120, 0.1);
+  --cd-shadow-sm: 0 1px 4px rgba(97, 49, 120, 0.08);
+}
+
+.body--dark {
+  --cd-primary: #9b59b6;
+  --cd-secondary: #b07cc6;
+  --cd-accent: #e74c8c;
+  --cd-accent-hover: #d63384;
+  --cd-text: #e8e6f0;
+  --cd-text-2: #a8a0b8;
+  --cd-bg: #1a1625;
+  --cd-card: #241e30;
+  --cd-border: #3d3550;
+  --cd-border-light: #352e42;
+  --cd-shadow: 0 4px 18px rgba(0, 0, 0, 0.45);
+  --cd-shadow-sm: 0 1px 4px rgba(0, 0, 0, 0.35);
+}
+
+body {
+  font-family:
+    'Segoe UI',
+    system-ui,
+    -apple-system,
+    Roboto,
+    Arial,
+    sans-serif;
+}
+.body--light {
+  background: var(--cd-bg);
+}
+
+// Header em gradiente (primary -> secondary)
+.cd-header {
+  background: linear-gradient(135deg, var(--cd-primary), var(--cd-secondary)) !important;
+}
+
+// Cartoes no estilo do projeto anterior
+.cd-card {
+  background: var(--cd-card);
+  border: 1px solid var(--cd-border-light);
+  border-radius: 14px;
+  box-shadow: var(--cd-shadow-sm);
+}
+
+.cd-section-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--cd-primary);
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+}
+
+// KPI cards com gradiente (receita / saida / saldo / comprometimento)
+.cd-kpi {
+  border-radius: 14px;
+  padding: 16px;
+  color: #fff;
+  box-shadow: var(--cd-shadow-sm);
+  overflow: hidden;
+}
+.cd-kpi .cd-kpi-label {
+  font-size: 12px;
+  font-weight: 600;
+  opacity: 0.92;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+.cd-kpi .cd-kpi-value {
+  font-size: 22px;
+  font-weight: 800;
+  line-height: 1.2;
+}
+.cd-kpi.rec {
+  background: linear-gradient(135deg, #2e7d32, #43a047);
+}
+.cd-kpi.sai {
+  background: linear-gradient(135deg, var(--cd-accent), var(--cd-accent-hover));
+}
+.cd-kpi.sal {
+  background: linear-gradient(135deg, var(--cd-primary), var(--cd-secondary));
+}
+.cd-kpi.comp {
+  background: linear-gradient(135deg, #5b6bb5, #3b82f6);
+}
+
+// Item ativo do menu lateral
+.q-drawer .q-item.q-router-link--active {
+  color: var(--cd-primary);
+  border-right: 3px solid var(--cd-accent);
+  font-weight: 600;
+}
