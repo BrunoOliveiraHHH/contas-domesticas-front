@@ -1,5 +1,5 @@
 <template>
-  <q-page class="flex flex-center">
+  <div class="flex flex-center" style="min-height: 100vh">
     <q-card style="width: 340px" flat bordered>
       <q-card-section class="text-center">
         <div class="text-h6">Entrar</div>
@@ -14,11 +14,17 @@
             label="Senha"
             :rules="[(v) => !!v || 'Informe a senha']"
           />
-          <q-btn type="submit" color="primary" label="Entrar" class="full-width" :loading="carregando" />
+          <q-btn
+            type="submit"
+            color="primary"
+            label="Entrar"
+            class="full-width"
+            :loading="carregando"
+          />
         </q-form>
       </q-card-section>
     </q-card>
-  </q-page>
+  </div>
 </template>
 
 <script setup lang="ts">
