@@ -58,11 +58,11 @@
             <div class="col">{{ c.categoriaNome }}</div>
             <div class="col-auto text-weight-medium">{{ brl(c.total) }}</div>
             <div class="col-auto text-grey q-ml-sm" style="min-width: 48px; text-align: right">
-              {{ (c.percentual * 100).toFixed(0) }}%
+              {{ c.percentual.toFixed(0) }}%
             </div>
           </div>
           <q-linear-progress
-            :value="c.percentual"
+            :value="c.percentual / 100"
             color="negative"
             track-color="grey-3"
             size="10px"
