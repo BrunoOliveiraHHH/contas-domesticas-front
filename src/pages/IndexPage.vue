@@ -191,8 +191,8 @@ const MESES = [
 ]
 const mesOpcoes = MESES.map((nome, i) => ({ label: nome, value: i + 1 }))
 const semestreOpcoes = [
-  { label: '1o semestre', value: 1 },
-  { label: '2o semestre', value: 2 }
+  { label: '1º semestre', value: 1 },
+  { label: '2º semestre', value: 2 }
 ]
 const anoOpcoes = Array.from({ length: 7 }, (_, i) => {
   const y = agora.getFullYear() - 4 + i
