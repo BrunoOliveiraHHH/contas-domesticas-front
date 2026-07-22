@@ -59,6 +59,7 @@
 </template>
 
 <script setup lang="ts">
+import { formatarMoeda, formatarData } from 'src/utils/format'
 import { computed, onMounted, reactive, ref } from 'vue'
 import { useQuasar } from 'quasar'
 import { useReceitasStore } from 'stores/lancamentos'
@@ -79,12 +80,20 @@ const colunas = [
     align: 'left' as const,
     sortable: true
   },
-  { name: 'valor', label: 'Valor', field: 'valor', align: 'right' as const, sortable: true },
+  {
+    name: 'valor',
+    label: 'Valor',
+    field: 'valor',
+    align: 'right' as const,
+    sortable: true,
+    format: (v: number) => formatarMoeda(v)
+  },
   {
     name: 'dataCompetencia',
     label: 'Competencia',
     field: 'dataCompetencia',
-    align: 'left' as const
+    align: 'left' as const,
+    format: (v: string) => formatarData(v)
   },
   { name: 'acoes', label: '', field: 'acoes', align: 'right' as const }
 ]

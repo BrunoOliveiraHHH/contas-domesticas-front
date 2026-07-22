@@ -125,6 +125,7 @@
 </template>
 
 <script setup lang="ts">
+import { formatarMoeda } from 'src/utils/format'
 import { computed, reactive, ref } from 'vue'
 import { useQuasar } from 'quasar'
 import { parametrosService } from 'src/services/configuracao'
@@ -133,9 +134,7 @@ import { calcularInvestimento, calcularFinanciamento, precoPorUnidade } from 'sr
 const $q = useQuasar()
 const aba = ref('investimento')
 
-function brl(valor: number) {
-  return valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
-}
+const brl = (valor: number | null | undefined) => formatarMoeda(valor)
 
 // Investimento
 const inv = reactive({ inicial: 1000, mensal: 200, taxa: 1, meses: 12 })

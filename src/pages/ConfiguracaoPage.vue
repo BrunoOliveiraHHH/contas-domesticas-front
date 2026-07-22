@@ -6,6 +6,24 @@
       <q-btn color="primary" icon="add" label="Parametro" @click="abrirNovo" />
     </div>
 
+    <q-card flat class="cd-card q-mb-lg">
+      <q-card-section class="row items-center q-gutter-md">
+        <div class="cd-section-title">Exibicao</div>
+        <q-select
+          v-model="moeda"
+          :options="moedaOpcoes"
+          label="Moeda"
+          emit-value
+          map-options
+          dense
+          outlined
+          style="min-width: 220px"
+          @update:model-value="salvarMoeda"
+        />
+        <div class="text-caption text-grey">Exemplo: {{ exemplo }} · datas em DD/MM/AAAA</div>
+      </q-card-section>
+    </q-card>
+
     <div class="text-subtitle1 q-mb-sm">Parametros (indices e aliquotas)</div>
     <q-table
       :rows="store.parametros"
@@ -69,13 +87,34 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, reactive, ref } from 'vue'
+import { computed, onMounted, reactive, ref } from 'vue'
 import { useQuasar } from 'quasar'
 import { useConfiguracaoStore } from 'stores/configuracao'
+import { usePreferenciasStore } from 'stores/preferencias'
+import { formatarData, formatarMoeda } from 'src/utils/format'
 import type { Parametro, ParametroRequest } from 'src/services/configuracao'
 
 const $q = useQuasar()
 const store = useConfiguracaoStore()
+const preferencias = usePreferenciasStore()
+
+// Moeda de exibicao (base BRL)
+const moeda = ref(preferencias.moeda)
+const moedaOpcoes = [
+  { label: 'Real (R$ · BRL)', value: 'BRL' },
+  { label: 'Dolar (US$ · USD)', value: 'USD' },
+  { label: 'Euro (€ · EUR)', value: 'EUR' },
+  { label: 'Libra (£ · GBP)', value: 'GBP' }
+]
+const exemplo = computed(() => formatarMoeda(1234.5, moeda.value))
+async function salvarMoeda(m: string) {
+  try {
+    await preferencias.definirMoeda(m)
+    $q.notify({ type: 'positive', message: 'Moeda atualizada' })
+  } catch {
+    $q.notify({ type: 'negative', message: 'Erro ao salvar moeda' })
+  }
+}
 
 const colunas = [
   { name: 'chave', label: 'Chave', field: 'chave', align: 'left' as const, sortable: true },
@@ -85,7 +124,8 @@ const colunas = [
     label: 'Vigencia',
     field: 'vigenciaInicio',
     align: 'left' as const,
-    sortable: true
+    sortable: true,
+    format: (v: string) => formatarData(v)
   },
   { name: 'descricao', label: 'Descricao', field: 'descricao', align: 'left' as const },
   { name: 'acoes', label: '', field: 'acoes', align: 'right' as const }

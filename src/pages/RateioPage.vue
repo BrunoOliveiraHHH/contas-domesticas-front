@@ -59,6 +59,7 @@
 </template>
 
 <script setup lang="ts">
+import { formatarMoeda } from 'src/utils/format'
 import { computed, onMounted, ref } from 'vue'
 import { useQuasar } from 'quasar'
 import { useDespesasStore } from 'stores/lancamentos'
@@ -76,9 +77,7 @@ const despesaOpcoes = computed(() =>
   store.itens.map((d) => ({ label: `${d.descricao} (${brl(d.valor)})`, value: d.id }))
 )
 
-function brl(valor: number) {
-  return valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
-}
+const brl = (valor: number | null | undefined) => formatarMoeda(valor)
 
 const despesaId = ref<number | null>(null)
 const participantes = ref<number[]>([])

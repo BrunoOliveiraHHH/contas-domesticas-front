@@ -74,6 +74,7 @@
 </template>
 
 <script setup lang="ts">
+import { formatarMoeda, formatarData } from 'src/utils/format'
 import { computed, onMounted, reactive, ref } from 'vue'
 import { useQuasar } from 'quasar'
 import { useDespesasStore } from 'stores/lancamentos'
@@ -94,8 +95,21 @@ const colunas = [
     align: 'left' as const,
     sortable: true
   },
-  { name: 'valor', label: 'Valor', field: 'valor', align: 'right' as const, sortable: true },
-  { name: 'dataVencimento', label: 'Vencimento', field: 'dataVencimento', align: 'left' as const },
+  {
+    name: 'valor',
+    label: 'Valor',
+    field: 'valor',
+    align: 'right' as const,
+    sortable: true,
+    format: (v: number) => formatarMoeda(v)
+  },
+  {
+    name: 'dataVencimento',
+    label: 'Vencimento',
+    field: 'dataVencimento',
+    align: 'left' as const,
+    format: (v: string) => formatarData(v)
+  },
   { name: 'status', label: 'Status', field: 'status', align: 'left' as const },
   { name: 'acoes', label: '', field: 'acoes', align: 'right' as const }
 ]

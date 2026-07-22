@@ -1,15 +1,26 @@
 <template>
   <q-page class="q-pa-md">
-    <div class="row items-center q-mb-md">
+    <div class="row items-center q-mb-md q-gutter-sm">
       <div class="text-h6">Dashboard</div>
       <q-space />
+      <q-btn-toggle
+        v-model="modo"
+        :options="modoOpcoes"
+        unelevated
+        dense
+        no-caps
+        toggle-color="primary"
+        color="grey-3"
+        text-color="primary"
+        @update:model-value="recarregar"
+      />
       <q-input
         v-model="periodo"
         type="month"
         dense
         outlined
-        label="Periodo"
-        style="max-width: 180px"
+        :label="modo === 'ANO' ? 'Ano' : 'Mes'"
+        style="max-width: 160px"
         @update:model-value="recarregar"
       />
     </div>
@@ -119,10 +130,17 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import VChart from 'vue-echarts'
-import { useRelatoriosStore } from 'stores/relatorios'
+import { useRelatoriosStore, type ModoPeriodo } from 'stores/relatorios'
+import { formatarMoeda, rotuloMesCurto } from 'src/utils/format'
 
 const store = useRelatoriosStore()
 const periodo = ref(store.periodo)
+const modo = ref<ModoPeriodo>(store.modo)
+const modoOpcoes = [
+  { label: 'Mes', value: 'MES' },
+  { label: 'Semestre', value: 'SEMESTRE' },
+  { label: 'Ano', value: 'ANO' }
+]
 
 const CORES = [
   '#613178',
@@ -137,14 +155,7 @@ const CORES = [
   '#b07cc6'
 ]
 
-function brl(valor: number) {
-  return valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
-}
-
-function rotuloMes(p: string) {
-  const [y, m] = p.split('-')
-  return `${m}/${(y ?? '').slice(2)}`
-}
+const brl = (valor: number | null | undefined) => formatarMoeda(valor)
 
 const comprometimento = computed(() => {
   const r = store.saldo?.receitas ?? 0
@@ -170,7 +181,7 @@ const donutOption = computed(() => ({
 }))
 
 const evolucaoOption = computed(() => {
-  const labels = store.evolucao.map((e) => rotuloMes(e.periodo))
+  const labels = store.evolucao.map((e) => rotuloMesCurto(e.periodo))
   return {
     tooltip: { trigger: 'axis' },
     legend: { bottom: 0, textStyle: { color: '#8888aa' } },
@@ -207,11 +218,11 @@ const evolucaoOption = computed(() => {
 })
 
 function recarregar() {
-  store.carregar(periodo.value)
+  store.carregar(periodo.value, modo.value)
 }
 
 onMounted(() => {
-  store.carregar(periodo.value)
+  store.carregar(periodo.value, modo.value)
 })
 </script>
 

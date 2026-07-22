@@ -157,6 +157,7 @@
 </template>
 
 <script setup lang="ts">
+import { formatarMoeda } from 'src/utils/format'
 import { computed, onMounted, reactive, ref } from 'vue'
 import { useQuasar } from 'quasar'
 import { useRoute, useRouter } from 'vue-router'
@@ -206,9 +207,7 @@ const unidadeOpcoes = computed(() =>
   unidades.itens.map((u) => ({ label: u.sigla ?? u.nome ?? `#${u.id}`, value: u.id }))
 )
 
-function brl(valor: number) {
-  return valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
-}
+const brl = (valor: number | null | undefined) => formatarMoeda(valor)
 function nomeMercado(id: number | null) {
   if (id == null) return '-'
   return mercados.itens.find((m) => m.id === id)?.nome ?? `#${id}`

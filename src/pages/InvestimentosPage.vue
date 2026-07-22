@@ -85,6 +85,7 @@
 </template>
 
 <script setup lang="ts">
+import { formatarMoeda, formatarData } from 'src/utils/format'
 import { computed, onMounted, reactive, ref } from 'vue'
 import { useQuasar } from 'quasar'
 import { useInvestimentosStore } from 'stores/investimentos'
@@ -127,16 +128,15 @@ const colunas = [
     name: 'dataAplicacao',
     label: 'Aplicacao',
     field: 'dataAplicacao',
-    align: 'left' as const
+    align: 'left' as const,
+    format: (v: string) => formatarData(v)
   },
   { name: 'acoes', label: '', field: 'acoes', align: 'right' as const }
 ]
 
 const carteiraOpcoes = computed(() => carteiras.itens.map((c) => ({ label: c.nome, value: c.id })))
 
-function brl(valor: number) {
-  return valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
-}
+const brl = (valor: number | null | undefined) => formatarMoeda(valor)
 
 const hoje = () => new Date().toISOString().slice(0, 10)
 

@@ -102,6 +102,7 @@
 </template>
 
 <script setup lang="ts">
+import { formatarData } from 'src/utils/format'
 import { computed, onMounted, reactive, ref } from 'vue'
 import { useQuasar } from 'quasar'
 import { useRouter } from 'vue-router'
@@ -122,7 +123,13 @@ const statusOpcoes: StatusLista[] = ['ABERTA', 'FECHADA', 'ARQUIVADA']
 const colunas = [
   { name: 'nome', label: 'Nome', field: 'nome', align: 'left' as const, sortable: true },
   { name: 'tipo', label: 'Tipo', field: 'tipo', align: 'left' as const },
-  { name: 'data', label: 'Data', field: 'data', align: 'left' as const },
+  {
+    name: 'data',
+    label: 'Data',
+    field: 'data',
+    align: 'left' as const,
+    format: (v: string) => formatarData(v)
+  },
   { name: 'status', label: 'Status', field: 'status', align: 'left' as const },
   { name: 'acoes', label: '', field: 'acoes', align: 'right' as const }
 ]

@@ -42,6 +42,7 @@
 </template>
 
 <script setup lang="ts">
+import { formatarMoeda, formatarData } from 'src/utils/format'
 import { computed, onMounted, reactive, ref } from 'vue'
 import { useQuasar } from 'quasar'
 import { useDespesasStore } from 'stores/lancamentos'
@@ -63,8 +64,20 @@ const categoriaOpcoes = computed(() =>
 
 const colunas = [
   { name: 'descricao', label: 'Descricao', field: 'descricao', align: 'left' as const },
-  { name: 'valor', label: 'Valor', field: 'valor', align: 'right' as const },
-  { name: 'dataVencimento', label: 'Vencimento', field: 'dataVencimento', align: 'left' as const }
+  {
+    name: 'valor',
+    label: 'Valor',
+    field: 'valor',
+    align: 'right' as const,
+    format: (v: number) => formatarMoeda(v)
+  },
+  {
+    name: 'dataVencimento',
+    label: 'Vencimento',
+    field: 'dataVencimento',
+    align: 'left' as const,
+    format: (v: string) => formatarData(v)
+  }
 ]
 
 const hoje = () => new Date().toISOString().slice(0, 10)

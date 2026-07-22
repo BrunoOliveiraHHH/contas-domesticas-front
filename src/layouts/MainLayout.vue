@@ -36,12 +36,17 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useQuasar } from 'quasar'
 import { useAuthStore } from 'stores/auth'
+import { usePreferenciasStore } from 'stores/preferencias'
 
 const $q = useQuasar()
+const preferencias = usePreferenciasStore()
+onMounted(() => {
+  preferencias.carregar()
+})
 const leftDrawerOpen = ref(false)
 const toggleLeftDrawer = () => {
   leftDrawerOpen.value = !leftDrawerOpen.value
