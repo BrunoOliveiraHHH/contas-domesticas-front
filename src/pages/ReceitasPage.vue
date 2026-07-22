@@ -26,24 +26,19 @@
         <q-card-section class="text-h6">Nova receita</q-card-section>
         <q-card-section>
           <q-form class="q-gutter-md" @submit="salvar">
-            <q-input
-              v-model="form.descricao"
-              label="Descricao"
-              :rules="[(v) => !!v || 'Informe']"
+            <q-input v-model="form.descricao" label="Nome" :rules="[(v) => !!v || 'Informe']" />
+            <q-select
+              v-model="form.categoriaId"
+              :options="categoriaOpcoes"
+              label="Categoria (salário, 13º, freelancer...)"
+              emit-value
+              map-options
             />
             <q-input v-model.number="form.valor" type="number" step="0.01" label="Valor" />
-            <q-input v-model="form.dataCompetencia" type="date" label="Competencia" />
             <q-select
               v-model="form.carteiraId"
               :options="carteiraOpcoes"
               label="Carteira"
-              emit-value
-              map-options
-            />
-            <q-select
-              v-model="form.categoriaId"
-              :options="categoriaOpcoes"
-              label="Categoria (receita)"
               emit-value
               map-options
             />

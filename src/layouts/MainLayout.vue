@@ -68,7 +68,7 @@ const links = [
   { label: t('nav.dashboard'), icon: 'dashboard', to: '/' },
   { label: t('nav.receitas'), icon: 'trending_up', to: '/receitas' },
   { label: t('nav.despesas'), icon: 'trending_down', to: '/despesas' },
-  { label: t('nav.recorrencias'), icon: 'autorenew', to: '/recorrencias' },
+  { label: t('nav.recorrencias'), icon: 'subscriptions', to: '/recorrencias' },
   { label: t('nav.parcelamento'), icon: 'credit_card', to: '/parcelamento' },
   { label: t('nav.divisao'), icon: 'groups', to: '/divisao' },
   { label: t('nav.carteiras'), icon: 'account_balance_wallet', to: '/carteiras' },

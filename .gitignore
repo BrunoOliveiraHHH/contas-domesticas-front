@@ -20,3 +20,6 @@ node_modules
 *.ntvs*
 *.njsproj
 *.sln
+
+# Variaveis de ambiente locais
+.env
