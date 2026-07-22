@@ -51,33 +51,53 @@
       />
     </div>
 
-    <!-- KPIs em gradiente -->
+    <!-- KPIs (todos do mesmo tamanho, 2 por linha) -->
     <div class="row q-col-gutter-md">
-      <div class="col-12 col-sm-6 col-md-3">
-        <div class="cd-kpi rec">
-          <div class="cd-kpi-label">Receitas</div>
-          <div class="cd-kpi-value">{{ brl(store.saldo?.receitas ?? 0) }}</div>
-        </div>
-      </div>
-      <div class="col-12 col-sm-6 col-md-3">
-        <div class="cd-kpi sai">
-          <div class="cd-kpi-label">Despesas</div>
-          <div class="cd-kpi-value">{{ brl(store.saldo?.despesas ?? 0) }}</div>
-        </div>
-      </div>
-      <div class="col-12 col-sm-6 col-md-3">
-        <div class="cd-kpi sal">
-          <div class="cd-kpi-label">Saldo</div>
-          <div class="cd-kpi-value">{{ brl(store.saldo?.saldo ?? 0) }}</div>
-        </div>
-      </div>
-      <div class="col-12 col-sm-6 col-md-3">
-        <div class="cd-kpi comp">
-          <div class="cd-kpi-label">Comprometimento</div>
-          <div class="cd-kpi-value">{{ comprometimento }}%</div>
+      <div v-for="k in kpis" :key="k.label" class="col-6">
+        <div class="cd-kpi" :class="k.classe">
+          <div class="cd-kpi-label">{{ k.label }}</div>
+          <div class="cd-kpi-value">{{ k.valor }}</div>
         </div>
       </div>
     </div>
+
+    <!-- Simulador de quitação -->
+    <q-card flat class="cd-card q-mt-md">
+      <q-card-section>
+        <div class="cd-section-title q-mb-sm">Simulador de quitação</div>
+        <div class="row q-col-gutter-md items-end">
+          <div class="col-12 col-sm-5">
+            <q-select
+              v-model="pendenciaSel"
+              :options="pendenciaOpcoes"
+              label="Conta pendente (opcional)"
+              emit-value
+              map-options
+              dense
+              outlined
+              clearable
+              @update:model-value="aoEscolherPendencia"
+            />
+          </div>
+          <div class="col-12 col-sm-4">
+            <q-input
+              v-model.number="valorSimulacao"
+              type="number"
+              step="0.01"
+              label="Valor a quitar"
+              dense
+              outlined
+            />
+          </div>
+          <div class="col-12 col-sm-3 text-caption text-grey">
+            Sobra mensal estimada: {{ brl(sobraMensal) }}
+          </div>
+        </div>
+        <q-banner class="q-mt-md" :class="simulacao.cor">
+          {{ simulacao.texto }}
+        </q-banner>
+      </q-card-section>
+    </q-card>
 
     <!-- Graficos -->
     <div class="row q-col-gutter-md q-mt-none">
@@ -158,11 +178,13 @@ import { useI18n } from 'vue-i18n'
 import { computed, onMounted, ref } from 'vue'
 import VChart from 'vue-echarts'
 import { useRelatoriosStore, type ModoPeriodo } from 'stores/relatorios'
+import { useDespesasStore } from 'stores/lancamentos'
 import { formatarMoeda, rotuloMesCurto } from 'src/utils/format'
 
 const { t } = useI18n()
 
 const store = useRelatoriosStore()
+const despesasStore = useDespesasStore()
 
 const agora = new Date()
 const modo = ref<ModoPeriodo>(store.modo)
@@ -229,6 +251,90 @@ const comprometimento = computed(() => {
   return ((d / r) * 100).toFixed(0)
 })
 
+// KPIs (todos do mesmo tamanho, 2 por linha)
+const kpis = computed(() => {
+  const s = store.saldo
+  const receitas = s?.receitas ?? 0
+  const despesas = s?.despesas ?? 0
+  const saldo = s?.saldo ?? 0
+  const aPagar = s?.aPagar ?? 0
+  const atrasadas = s?.atrasadas ?? 0
+  const assinaturas = s?.assinaturas ?? 0
+
+  const saldoProjetado = saldo - aPagar
+  const taxaPoupanca = receitas > 0 ? (saldo / receitas) * 100 : 0
+  const pctPago = despesas > 0 ? ((despesas - aPagar) / despesas) * 100 : 0
+  const reservaMeses = despesas > 0 ? store.patrimonio / despesas : 0
+
+  const evo = store.evolucao
+  const despPrev = evo.length >= 2 ? (evo[evo.length - 2]?.despesas ?? 0) : 0
+  const variacao = despPrev > 0 ? ((despesas - despPrev) / despPrev) * 100 : 0
+  const setaVar = variacao > 0 ? '▲' : variacao < 0 ? '▼' : ''
+
+  const maior = store.despesasPorCategoria[0]
+
+  return [
+    { label: 'Receitas', valor: brl(receitas), classe: 'rec' },
+    { label: 'Despesas', valor: brl(despesas), classe: 'sai' },
+    { label: 'A pagar', valor: brl(aPagar), classe: 'warn' },
+    { label: 'Atrasadas', valor: brl(atrasadas), classe: 'danger' },
+    { label: 'Saldo', valor: brl(saldo), classe: 'sal' },
+    { label: 'Saldo projetado', valor: brl(saldoProjetado), classe: 'teal' },
+    { label: 'Comprometimento', valor: `${comprometimento.value}%`, classe: 'comp' },
+    { label: 'Taxa de poupança', valor: `${taxaPoupanca.toFixed(0)}%`, classe: 'rec' },
+    { label: '% pago do mês', valor: `${pctPago.toFixed(0)}%`, classe: 'comp' },
+    { label: 'Assinaturas/fixas', valor: brl(assinaturas), classe: 'teal' },
+    {
+      label: 'Variação vs mês ant.',
+      valor: `${setaVar} ${Math.abs(variacao).toFixed(0)}%`,
+      classe: 'sai'
+    },
+    { label: 'Reserva de emergência', valor: `${reservaMeses.toFixed(1)} meses`, classe: 'sal' },
+    {
+      label: 'Maior categoria',
+      valor: maior ? `${maior.categoriaNome} · ${brl(maior.total)}` : '—',
+      classe: 'sai'
+    }
+  ]
+})
+
+// Simulador de quitação
+const valorSimulacao = ref(0)
+const pendenciaSel = ref<number | null>(null)
+const pendenciaOpcoes = computed(() =>
+  despesasStore.itens
+    .filter((d) => d.status !== 'PAGO')
+    .map((d) => ({ label: `${d.descricao} · ${brl(d.valor)}`, value: d.id }))
+)
+function aoEscolherPendencia(id: number | null) {
+  const d = despesasStore.itens.find((x) => x.id === id)
+  if (d) valorSimulacao.value = d.valor
+}
+const sobraMensal = computed(() => {
+  const positivos = store.evolucao.map((e) => e.saldo).filter((v) => v > 0)
+  if (positivos.length) return positivos.reduce((a, b) => a + b, 0) / positivos.length
+  const saldo = store.saldo?.saldo ?? 0
+  return saldo > 0 ? saldo : 0
+})
+const simulacao = computed(() => {
+  const valor = valorSimulacao.value || 0
+  if (valor <= 0) return { texto: 'Escolha uma conta ou informe um valor.', cor: 'bg-grey-3' }
+  const sobra = sobraMensal.value
+  if (sobra <= 0) {
+    return {
+      texto: 'Sem sobra mensal no momento — não dá para projetar a quitação.',
+      cor: 'bg-red-2'
+    }
+  }
+  const meses = Math.ceil(valor / sobra)
+  const alvo = new Date(agora.getFullYear(), agora.getMonth() + meses, 1)
+  const rotulo = `${String(alvo.getMonth() + 1).padStart(2, '0')}/${alvo.getFullYear()}`
+  return {
+    texto: `Guardando ~${brl(sobra)}/mês, você quita em ~${meses} ${meses === 1 ? 'mês' : 'meses'} (previsão: ${rotulo}).`,
+    cor: 'bg-green-2'
+  }
+})
+
 const donutOption = computed(() => ({
   color: CORES,
   tooltip: { trigger: 'item', formatter: '{b}: R$ {c} ({d}%)' },
@@ -288,6 +394,7 @@ function recarregar() {
 
 onMounted(() => {
   store.carregar(anchor.value, modo.value)
+  despesasStore.carregar()
 })
 </script>
 

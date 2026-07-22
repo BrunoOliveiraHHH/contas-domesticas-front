@@ -71,6 +71,11 @@ body {
   color: #fff;
   box-shadow: var(--cd-shadow-sm);
   overflow: hidden;
+  // Todos os KPIs com o mesmo tamanho (2 por linha, metade da tela cada).
+  min-height: 92px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 .cd-kpi .cd-kpi-label {
   font-size: 12px;
@@ -95,6 +100,15 @@ body {
 }
 .cd-kpi.comp {
   background: linear-gradient(135deg, #5b6bb5, #3b82f6);
+}
+.cd-kpi.warn {
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+}
+.cd-kpi.danger {
+  background: linear-gradient(135deg, #ef4444, #b91c1c);
+}
+.cd-kpi.teal {
+  background: linear-gradient(135deg, #0d9488, #14b8a6);
 }
 
 // Item ativo do menu lateral

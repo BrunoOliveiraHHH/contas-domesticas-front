@@ -5,6 +5,9 @@ export interface SaldoMes {
   receitas: number
   despesas: number
   saldo: number
+  aPagar: number
+  atrasadas: number
+  assinaturas: number
 }
 
 export interface PorCategoriaItem {
