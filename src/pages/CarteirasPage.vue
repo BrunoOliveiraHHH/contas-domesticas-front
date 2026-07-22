@@ -11,9 +11,24 @@
       :columns="colunas"
       row-key="id"
       :loading="store.carregando"
+      :pagination="{ rowsPerPage: 25, sortBy: 'nome' }"
+      :rows-per-page-options="[10, 25, 50, 100]"
       flat
       bordered
     >
+      <template #body-cell-tipo="props">
+        <q-td :props="props">
+          <q-badge
+            :color="props.row.tipo === 'FAMILIAR' ? 'purple-6' : 'blue-7'"
+            :label="props.row.tipo === 'FAMILIAR' ? 'Familiar' : 'Individual'"
+          />
+        </q-td>
+      </template>
+      <template #body-cell-saldoInicial="props">
+        <q-td :props="props" class="text-right"
+          ><span class="cd-money">{{ brl(props.row.saldoInicial) }}</span></q-td
+        >
+      </template>
       <template #body-cell-acoes="props">
         <q-td :props="props" class="text-right">
           <q-btn flat dense round icon="edit" @click="abrirEdicao(props.row)" />
@@ -55,6 +70,7 @@ import { useI18n } from 'vue-i18n'
 import { onMounted, reactive, ref } from 'vue'
 import { useQuasar } from 'quasar'
 import { useCarteirasStore } from 'stores/carteiras'
+import { formatarMoeda } from 'src/utils/format'
 import type { Carteira, CarteiraRequest, TipoCarteira } from 'src/services/carteiras'
 
 const { t } = useI18n()
@@ -62,10 +78,19 @@ const { t } = useI18n()
 const $q = useQuasar()
 const store = useCarteirasStore()
 
+const brl = (v: number | null | undefined) => formatarMoeda(v)
+
 const colunas = [
   { name: 'nome', label: 'Nome', field: 'nome', align: 'left' as const, sortable: true },
-  { name: 'tipo', label: 'Tipo', field: 'tipo', align: 'left' as const },
-  { name: 'moeda', label: 'Moeda', field: 'moeda', align: 'left' as const },
+  { name: 'tipo', label: 'Tipo', field: 'tipo', align: 'left' as const, sortable: true },
+  {
+    name: 'saldoInicial',
+    label: 'Saldo inicial',
+    field: 'saldoInicial',
+    align: 'right' as const,
+    sortable: true
+  },
+  { name: 'moeda', label: 'Moeda', field: 'moeda', align: 'left' as const, sortable: true },
   { name: 'acoes', label: '', field: 'acoes', align: 'right' as const }
 ]
 const tipos = [

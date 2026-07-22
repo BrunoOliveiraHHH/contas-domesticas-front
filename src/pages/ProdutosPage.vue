@@ -11,13 +11,27 @@
       :columns="colunas"
       row-key="id"
       :loading="store.carregando"
+      :pagination="{ rowsPerPage: 25, sortBy: 'nome' }"
+      :rows-per-page-options="[10, 25, 50, 100]"
       flat
       bordered
     >
+      <template #body-cell-nivel="props">
+        <q-td :props="props">
+          <div class="row items-center no-wrap" style="gap: 8px; min-width: 120px">
+            <div class="cd-barra col">
+              <span :style="barraEstoque(props.row)" />
+            </div>
+            <span class="text-caption text-no-wrap">
+              {{ fmt(props.row.estoqueAtual) }}/{{ fmt(props.row.estoqueMinimo) }}
+            </span>
+          </div>
+        </q-td>
+      </template>
       <template #body-cell-comprar="props">
         <q-td :props="props" class="text-right">
           <q-badge v-if="aComprar(props.row) > 0" color="warning">
-            {{ aComprar(props.row) }}
+            {{ fmt(aComprar(props.row)) }}
           </q-badge>
           <span v-else class="text-grey">—</span>
         </q-td>
@@ -86,9 +100,36 @@ const store = useProdutoStore()
 
 const colunas = [
   { name: 'nome', label: 'Nome', field: 'nome', align: 'left' as const, sortable: true },
-  { name: 'estoqueMinimo', label: 'Mínimo', field: 'estoqueMinimo', align: 'right' as const },
-  { name: 'estoqueAtual', label: 'Atual', field: 'estoqueAtual', align: 'right' as const },
-  { name: 'comprar', label: 'A comprar', field: 'id', align: 'right' as const },
+  {
+    name: 'nivel',
+    label: 'Nível de estoque',
+    field: 'id',
+    align: 'left' as const,
+    sortable: true,
+    sort: (_a: unknown, _b: unknown, ra: Produto, rb: Produto) => nivel(ra) - nivel(rb)
+  },
+  {
+    name: 'estoqueMinimo',
+    label: 'Mínimo',
+    field: 'estoqueMinimo',
+    align: 'right' as const,
+    sortable: true
+  },
+  {
+    name: 'estoqueAtual',
+    label: 'Atual',
+    field: 'estoqueAtual',
+    align: 'right' as const,
+    sortable: true
+  },
+  {
+    name: 'comprar',
+    label: 'A comprar',
+    field: 'id',
+    align: 'right' as const,
+    sortable: true,
+    sort: (_a: unknown, _b: unknown, ra: Produto, rb: Produto) => aComprar(ra) - aComprar(rb)
+  },
   { name: 'acoes', label: '', field: 'acoes', align: 'right' as const }
 ]
 
@@ -96,6 +137,25 @@ function aComprar(row: Produto) {
   const min = row.estoqueMinimo ?? 0
   const atual = row.estoqueAtual ?? 0
   return Math.max(0, min - atual)
+}
+
+// Razão atual/mínimo (para ordenar e para a largura da barra)
+function nivel(row: Produto) {
+  const min = row.estoqueMinimo ?? 0
+  const atual = row.estoqueAtual ?? 0
+  return min > 0 ? atual / min : atual > 0 ? 1 : 0
+}
+
+function fmt(v: number | null | undefined) {
+  return (v ?? 0).toLocaleString('pt-BR', { maximumFractionDigits: 3 })
+}
+
+function barraEstoque(row: Produto) {
+  const min = row.estoqueMinimo ?? 0
+  const atual = row.estoqueAtual ?? 0
+  const pct = Math.min(100, nivel(row) * 100)
+  const cor = atual < min ? '#ef4444' : atual < min * 1.2 ? '#f59e0b' : '#43a047'
+  return { width: `${pct}%`, background: cor }
 }
 
 const dialog = ref(false)

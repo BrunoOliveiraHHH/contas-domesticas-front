@@ -51,13 +51,16 @@
       />
     </div>
 
-    <!-- KPIs (todos do mesmo tamanho, 2 por linha) -->
+    <!-- KPIs (cards com charts, todos do mesmo tamanho, 2 por linha) -->
     <div class="row q-col-gutter-md">
       <div v-for="k in kpis" :key="k.label" class="col-6">
-        <div class="cd-kpi" :class="k.classe">
-          <div class="cd-kpi-label">{{ k.label }}</div>
-          <div class="cd-kpi-value">{{ k.valor }}</div>
-        </div>
+        <q-card flat class="cd-card kpi-card">
+          <div class="kpi-head">
+            <div class="kpi-label">{{ k.label }}</div>
+            <div class="kpi-value" :style="{ color: k.cor }">{{ k.valor }}</div>
+          </div>
+          <VChart class="kpi-chart" :option="k.option" autoresize />
+        </q-card>
       </div>
     </div>
 
@@ -251,7 +254,190 @@ const comprometimento = computed(() => {
   return ((d / r) * 100).toFixed(0)
 })
 
-// KPIs (todos do mesmo tamanho, 2 por linha)
+// ===== Builders de mini-charts para os KPIs =====
+const CINZA = '#e6e6ee'
+const GRID = 'rgba(136,136,170,.20)'
+const EIXO_TXT = '#9a9ab5'
+const EIXO_LINHA = 'rgba(136,136,170,.35)'
+const compact = (v: number) =>
+  Math.abs(v) >= 1000
+    ? (v / 1000).toFixed(Math.abs(v) % 1000 === 0 ? 0 : 1) + 'k'
+    : String(Math.round(v))
+
+// Sparkline (linha) com grade e eixos para leitura da métrica
+function spark(data: number[], cor: string, labels: string[] = []) {
+  const serie = data.length ? data : [0, 0]
+  const cats = labels.length ? labels : serie.map((_, i) => String(i + 1))
+  return {
+    grid: { left: 36, right: 8, top: 10, bottom: 18 },
+    xAxis: {
+      type: 'category' as const,
+      boundaryGap: false,
+      data: cats,
+      axisTick: { show: false },
+      axisLine: { lineStyle: { color: EIXO_LINHA } },
+      axisLabel: { fontSize: 8, color: EIXO_TXT, hideOverlap: true }
+    },
+    yAxis: {
+      type: 'value' as const,
+      scale: true,
+      splitNumber: 3,
+      axisLabel: { fontSize: 8, color: EIXO_TXT, formatter: (v: number) => compact(v) },
+      splitLine: { show: true, lineStyle: { color: GRID, type: 'dashed' as const } }
+    },
+    tooltip: { trigger: 'axis' as const, formatter: (p: { value: number }[]) => brl(p[0]?.value) },
+    series: [
+      {
+        type: 'line' as const,
+        data: serie,
+        smooth: true,
+        symbol: 'circle',
+        symbolSize: 4,
+        lineStyle: { width: 2.5, color: cor },
+        itemStyle: { color: cor },
+        areaStyle: { color: cor + '22' }
+      }
+    ]
+  }
+}
+
+// Gauge radial com escala/ticks para leitura do percentual
+function gauge(pct: number, cor: string) {
+  const v = Math.max(0, Math.min(100, isFinite(pct) ? pct : 0))
+  return {
+    series: [
+      {
+        type: 'gauge' as const,
+        startAngle: 210,
+        endAngle: -30,
+        min: 0,
+        max: 100,
+        splitNumber: 5,
+        radius: '86%',
+        center: ['50%', '58%'],
+        progress: { show: true, width: 8, roundCap: true, itemStyle: { color: cor } },
+        axisLine: { lineStyle: { width: 8, color: [[1, CINZA]] as [number, string][] } },
+        axisTick: {
+          show: true,
+          splitNumber: 5,
+          distance: -8,
+          length: 4,
+          lineStyle: { color: '#b9b9cc', width: 1 }
+        },
+        splitLine: {
+          show: true,
+          distance: -8,
+          length: 8,
+          lineStyle: { color: '#b9b9cc', width: 1.5 }
+        },
+        axisLabel: {
+          show: true,
+          distance: 12,
+          fontSize: 8,
+          color: EIXO_TXT,
+          formatter: (x: number) => (x === 0 || x === 50 || x === 100 ? String(x) : '')
+        },
+        pointer: { show: false },
+        anchor: { show: false },
+        detail: { show: false },
+        title: { show: false },
+        data: [{ value: Math.round(v) }]
+      }
+    ]
+  }
+}
+
+// Donut de proporção (parte x restante) com % no centro
+function donut2(parte: number, total: number, cor: string) {
+  const p = Math.max(0, parte)
+  const resto = Math.max(0, total - p)
+  const pctTxt = total > 0 ? Math.round((p / total) * 100) + '%' : '0%'
+  return {
+    tooltip: { trigger: 'item' as const, formatter: (d: { value: number }) => brl(d.value) },
+    series: [
+      {
+        type: 'pie' as const,
+        radius: ['62%', '84%'],
+        center: ['50%', '52%'],
+        label: { show: false },
+        labelLine: { show: false },
+        data: [
+          {
+            value: p,
+            itemStyle: { color: cor },
+            label: {
+              show: true,
+              position: 'center' as const,
+              formatter: pctTxt,
+              fontSize: 16,
+              fontWeight: 'bold' as const,
+              color: cor
+            }
+          },
+          { value: resto || (p ? 0 : 1), itemStyle: { color: CINZA } }
+        ]
+      }
+    ]
+  }
+}
+
+// Duas barras comparativas com grade e rótulos
+function bars(valores: number[], cores: string[], labels: string[] = []) {
+  const cats = labels.length ? labels : valores.map((_, i) => String(i + 1))
+  return {
+    grid: { left: 36, right: 8, top: 10, bottom: 18 },
+    xAxis: {
+      type: 'category' as const,
+      data: cats,
+      axisTick: { show: false },
+      axisLine: { lineStyle: { color: EIXO_LINHA } },
+      axisLabel: { fontSize: 8, color: EIXO_TXT }
+    },
+    yAxis: {
+      type: 'value' as const,
+      splitNumber: 3,
+      axisLabel: { fontSize: 8, color: EIXO_TXT, formatter: (v: number) => compact(v) },
+      splitLine: { show: true, lineStyle: { color: GRID, type: 'dashed' as const } }
+    },
+    tooltip: { trigger: 'axis' as const, formatter: (p: { value: number }[]) => brl(p[0]?.value) },
+    series: [
+      {
+        type: 'bar' as const,
+        barWidth: '46%',
+        data: valores.map((v, i) => ({
+          value: v,
+          itemStyle: {
+            color: cores[i] ?? cores[0],
+            borderRadius: [3, 3, 0, 0] as [number, number, number, number]
+          }
+        }))
+      }
+    ]
+  }
+}
+
+// Donut das categorias de despesa
+function donutCat(cats: { categoriaNome: string; total: number }[]) {
+  return {
+    color: CORES,
+    tooltip: {
+      trigger: 'item' as const,
+      formatter: (d: { name: string; value: number }) => `${d.name}: ${brl(d.value)}`
+    },
+    series: [
+      {
+        type: 'pie' as const,
+        radius: ['55%', '82%'],
+        center: ['50%', '55%'],
+        label: { show: false },
+        labelLine: { show: false },
+        data: cats.slice(0, 6).map((c) => ({ name: c.categoriaNome, value: c.total }))
+      }
+    ]
+  }
+}
+
+// KPIs (cards com chart, todos do mesmo tamanho, 2 por linha)
 const kpis = computed(() => {
   const s = store.saldo
   const receitas = s?.receitas ?? 0
@@ -267,6 +453,10 @@ const kpis = computed(() => {
   const reservaMeses = despesas > 0 ? store.patrimonio / despesas : 0
 
   const evo = store.evolucao
+  const evoLabels = evo.map((e) => rotuloMesCurto(e.periodo))
+  const evoRec = evo.map((e) => e.receitas)
+  const evoDes = evo.map((e) => e.despesas)
+  const evoSal = evo.map((e) => e.saldo)
   const despPrev = evo.length >= 2 ? (evo[evo.length - 2]?.despesas ?? 0) : 0
   const variacao = despPrev > 0 ? ((despesas - despPrev) / despPrev) * 100 : 0
   const setaVar = variacao > 0 ? '▲' : variacao < 0 ? '▼' : ''
@@ -274,26 +464,83 @@ const kpis = computed(() => {
   const maior = store.despesasPorCategoria[0]
 
   return [
-    { label: 'Receitas', valor: brl(receitas), classe: 'rec' },
-    { label: 'Despesas', valor: brl(despesas), classe: 'sai' },
-    { label: 'A pagar', valor: brl(aPagar), classe: 'warn' },
-    { label: 'Atrasadas', valor: brl(atrasadas), classe: 'danger' },
-    { label: 'Saldo', valor: brl(saldo), classe: 'sal' },
-    { label: 'Saldo projetado', valor: brl(saldoProjetado), classe: 'teal' },
-    { label: 'Comprometimento', valor: `${comprometimento.value}%`, classe: 'comp' },
-    { label: 'Taxa de poupança', valor: `${taxaPoupanca.toFixed(0)}%`, classe: 'rec' },
-    { label: '% pago do mês', valor: `${pctPago.toFixed(0)}%`, classe: 'comp' },
-    { label: 'Assinaturas/fixas', valor: brl(assinaturas), classe: 'teal' },
+    {
+      label: 'Receitas',
+      valor: brl(receitas),
+      cor: '#2e7d32',
+      option: spark(evoRec, '#43a047', evoLabels)
+    },
+    {
+      label: 'Despesas',
+      valor: brl(despesas),
+      cor: '#c72d7b',
+      option: spark(evoDes, '#d82a76', evoLabels)
+    },
+    {
+      label: 'A pagar',
+      valor: brl(aPagar),
+      cor: '#d97706',
+      option: donut2(aPagar, despesas, '#f59e0b')
+    },
+    {
+      label: 'Atrasadas',
+      valor: brl(atrasadas),
+      cor: '#b91c1c',
+      option: donut2(atrasadas, aPagar || despesas, '#ef4444')
+    },
+    {
+      label: 'Saldo',
+      valor: brl(saldo),
+      cor: 'var(--cd-primary)',
+      option: spark(evoSal, '#613178', evoLabels)
+    },
+    {
+      label: 'Saldo projetado',
+      valor: brl(saldoProjetado),
+      cor: '#0d9488',
+      option: bars([saldo, saldoProjetado], ['#8b5a96', '#14b8a6'], ['Saldo', 'Proj.'])
+    },
+    {
+      label: 'Comprometimento',
+      valor: `${comprometimento.value}%`,
+      cor: '#3b82f6',
+      option: gauge(Number(comprometimento.value), '#3b82f6')
+    },
+    {
+      label: 'Taxa de poupança',
+      valor: `${taxaPoupanca.toFixed(0)}%`,
+      cor: '#2e7d32',
+      option: gauge(taxaPoupanca, '#43a047')
+    },
+    {
+      label: '% pago do mês',
+      valor: `${pctPago.toFixed(0)}%`,
+      cor: '#5b6bb5',
+      option: gauge(pctPago, '#5b6bb5')
+    },
+    {
+      label: 'Assinaturas/fixas',
+      valor: brl(assinaturas),
+      cor: '#0d9488',
+      option: donut2(assinaturas, despesas, '#14b8a6')
+    },
     {
       label: 'Variação vs mês ant.',
       valor: `${setaVar} ${Math.abs(variacao).toFixed(0)}%`,
-      classe: 'sai'
+      cor: '#c72d7b',
+      option: bars([despPrev, despesas], ['#bcbcd0', '#d82a76'], ['Ant.', 'Atual'])
     },
-    { label: 'Reserva de emergência', valor: `${reservaMeses.toFixed(1)} meses`, classe: 'sal' },
+    {
+      label: 'Reserva de emergência',
+      valor: `${reservaMeses.toFixed(1)} meses`,
+      cor: 'var(--cd-primary)',
+      option: gauge(Math.min((reservaMeses / 6) * 100, 100), '#613178')
+    },
     {
       label: 'Maior categoria',
-      valor: maior ? `${maior.categoriaNome} · ${brl(maior.total)}` : '—',
-      classe: 'sai'
+      valor: maior ? maior.categoriaNome : '—',
+      cor: '#c72d7b',
+      option: donutCat(store.despesasPorCategoria)
     }
   ]
 })
@@ -402,5 +649,41 @@ onMounted(() => {
 .cd-chart {
   height: 280px;
   width: 100%;
+}
+
+/* KPI card com mini-chart */
+.kpi-card {
+  height: 178px;
+  padding: 12px 14px 8px;
+  display: flex;
+  flex-direction: column;
+}
+.kpi-head {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+.kpi-label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  color: var(--cd-text-2);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.kpi-value {
+  font-size: 20px;
+  font-weight: 800;
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.kpi-chart {
+  flex: 1;
+  width: 100%;
+  min-height: 0;
 }
 </style>

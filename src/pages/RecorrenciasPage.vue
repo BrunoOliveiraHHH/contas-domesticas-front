@@ -11,11 +11,41 @@
       :columns="colunas"
       row-key="id"
       :loading="store.carregando"
+      :pagination="{ rowsPerPage: 25, sortBy: 'descricao' }"
+      :rows-per-page-options="[10, 25, 50, 100]"
       flat
       bordered
     >
+      <template #body-cell-tipo="props">
+        <q-td :props="props">
+          <q-badge
+            :color="props.row.tipo === 'RECEITA' ? 'green-7' : 'pink-7'"
+            :label="props.row.tipo === 'RECEITA' ? 'Receita' : 'Despesa'"
+          />
+        </q-td>
+      </template>
       <template #body-cell-categoria="props">
-        <q-td :props="props">{{ nomeCategoria(props.row.categoriaId) }}</q-td>
+        <q-td :props="props">
+          <CdCategoriaChip
+            :nome="nomeCategoria(props.row.categoriaId)"
+            :cor="corCategoria(props.row.categoriaId)"
+          />
+        </q-td>
+      </template>
+      <template #body-cell-valor="props">
+        <q-td :props="props" class="text-right">
+          <span
+            class="cd-money"
+            :class="props.row.tipo === 'RECEITA' ? 'cd-money--pos' : 'cd-money--neg'"
+          >
+            {{ props.row.tipo === 'RECEITA' ? '+' : '−' }} {{ brl(props.row.valor) }}
+          </span>
+        </q-td>
+      </template>
+      <template #body-cell-frequencia="props">
+        <q-td :props="props">
+          <q-badge outline color="primary" :label="freqLabel(props.row.frequencia)" />
+        </q-td>
       </template>
       <template #body-cell-ativa="props">
         <q-td :props="props">
@@ -102,6 +132,7 @@ import { useCarteirasStore } from 'stores/carteiras'
 import { useCategoriaStore } from 'stores/categorias'
 import { formatarMoeda } from 'src/utils/format'
 import type { Recorrencia, RecorrenciaRequest, Frequencia } from 'src/services/recorrencias'
+import CdCategoriaChip from 'components/CdCategoriaChip.vue'
 
 const { t } = useI18n()
 
@@ -113,18 +144,39 @@ const categorias = useCategoriaStore()
 const tipos = ['RECEITA', 'DESPESA']
 const frequencias: Frequencia[] = ['SEMANAL', 'MENSAL', 'ANUAL']
 
+const FREQ_LABEL: Record<string, string> = { SEMANAL: 'Semanal', MENSAL: 'Mensal', ANUAL: 'Anual' }
+function freqLabel(f?: string | null) {
+  return FREQ_LABEL[f ?? ''] ?? f ?? '—'
+}
+
 const colunas = [
-  { name: 'descricao', label: 'Nome', field: 'descricao', align: 'left' as const },
-  { name: 'categoria', label: 'Categoria', field: 'categoriaId', align: 'left' as const },
+  { name: 'descricao', label: 'Nome', field: 'descricao', align: 'left' as const, sortable: true },
+  { name: 'tipo', label: 'Tipo', field: 'tipo', align: 'left' as const, sortable: true },
+  {
+    name: 'categoria',
+    label: 'Categoria',
+    field: 'categoriaId',
+    align: 'left' as const,
+    sortable: true,
+    sort: (_a: unknown, _b: unknown, ra: Recorrencia, rb: Recorrencia) =>
+      nomeCategoria(ra.categoriaId).localeCompare(nomeCategoria(rb.categoriaId))
+  },
   {
     name: 'valor',
     label: 'Valor',
     field: 'valor',
     align: 'right' as const,
+    sortable: true,
     format: (v: number) => formatarMoeda(v)
   },
-  { name: 'frequencia', label: 'Frequência', field: 'frequencia', align: 'left' as const },
-  { name: 'ativa', label: 'Ativa', field: 'ativa', align: 'left' as const },
+  {
+    name: 'frequencia',
+    label: 'Frequência',
+    field: 'frequencia',
+    align: 'left' as const,
+    sortable: true
+  },
+  { name: 'ativa', label: 'Ativa', field: 'ativa', align: 'left' as const, sortable: true },
   { name: 'acoes', label: '', field: 'acoes', align: 'right' as const }
 ]
 
@@ -134,6 +186,12 @@ const categoriaOpcoes = computed(() =>
 )
 function nomeCategoria(id: number) {
   return categorias.itens.find((c) => c.id === id)?.nome ?? '-'
+}
+function corCategoria(id: number) {
+  return categorias.itens.find((c) => c.id === id)?.cor ?? null
+}
+function brl(v: number) {
+  return formatarMoeda(v)
 }
 
 const hoje = () => new Date().toISOString().slice(0, 10)

@@ -6,38 +6,182 @@
       <q-btn color="primary" icon="add" label="Nova" @click="abrirNova" />
     </div>
 
+    <!-- Filtros -->
+    <q-card flat bordered class="q-mb-md">
+      <q-card-section class="row q-col-gutter-sm items-center">
+        <div class="col-12 col-md-3">
+          <q-input
+            v-model="busca"
+            dense
+            outlined
+            clearable
+            debounce="200"
+            label="Buscar"
+            prepend-inner-icon="search"
+          >
+            <template #prepend><q-icon name="search" /></template>
+          </q-input>
+        </div>
+        <div class="col-6 col-md-2">
+          <q-select
+            v-model="fStatus"
+            :options="statusOpcoes"
+            dense
+            outlined
+            clearable
+            emit-value
+            map-options
+            label="Status"
+          />
+        </div>
+        <div class="col-6 col-md-2">
+          <q-select
+            v-model="fCategoria"
+            :options="categoriaOpcoes"
+            dense
+            outlined
+            clearable
+            emit-value
+            map-options
+            label="Categoria"
+          />
+        </div>
+        <div class="col-6 col-md-2">
+          <q-select
+            v-model="fCarteira"
+            :options="carteiraOpcoes"
+            dense
+            outlined
+            clearable
+            emit-value
+            map-options
+            label="Carteira"
+          />
+        </div>
+        <div class="col-3 col-md-1">
+          <q-select
+            v-model="fMes"
+            :options="mesOpcoes"
+            dense
+            outlined
+            clearable
+            emit-value
+            map-options
+            label="Mês"
+          />
+        </div>
+        <div class="col-3 col-md-1">
+          <q-select
+            v-model="fAno"
+            :options="anoOpcoes"
+            dense
+            outlined
+            clearable
+            emit-value
+            map-options
+            label="Ano"
+          />
+        </div>
+        <div class="col-12 col-md-1 flex items-center">
+          <q-toggle v-model="agrupar" label="Mês" dense />
+        </div>
+      </q-card-section>
+    </q-card>
+
+    <!-- Totais -->
+    <div class="row q-gutter-sm q-mb-sm">
+      <q-chip square color="grey-2" text-color="primary" icon="receipt_long">
+        {{ filtradas.length }} lançamento(s)
+      </q-chip>
+      <q-chip square color="grey-2" class="cd-money cd-money--neg" icon="payments">
+        Total − {{ brl(total) }}
+      </q-chip>
+      <q-chip v-if="totalAPagar > 0" square color="orange-2" text-color="orange-9" icon="schedule">
+        A pagar {{ brl(totalAPagar) }}
+      </q-chip>
+    </div>
+
     <q-table
-      :rows="store.itens"
+      :rows="linhas"
       :columns="colunas"
       row-key="id"
       :loading="store.carregando"
+      :sort-method="agrupar ? manterOrdem : undefined"
+      :pagination="paginacao"
+      :rows-per-page-options="[10, 25, 50, 100]"
       flat
       bordered
     >
-      <template #body-cell-categoria="props">
-        <q-td :props="props">{{ nomeCategoria(props.row.categoriaId) }}</q-td>
-      </template>
-      <template #body-cell-carteira="props">
-        <q-td :props="props">{{ nomeCarteira(props.row.carteiraId) }}</q-td>
-      </template>
-      <template #body-cell-status="props">
-        <q-td :props="props">
-          <q-badge :color="corStatus(props.row.status)" :label="props.row.status || '-'" />
-        </q-td>
-      </template>
-      <template #body-cell-acoes="props">
-        <q-td :props="props" class="text-right">
-          <q-btn
-            v-if="props.row.status !== 'PAGO'"
-            flat
-            dense
-            round
-            icon="paid"
-            color="positive"
-            @click="pagar(props.row)"
-          />
-          <q-btn flat dense round icon="delete" color="negative" @click="remover(props.row)" />
-        </q-td>
+      <template #body="props">
+        <!-- Cabeçalho de grupo (mês) -->
+        <q-tr v-if="props.row.__grupo" :props="props" class="cd-grupo-row">
+          <q-td colspan="100%">
+            <q-icon name="event" size="16px" class="q-mr-sm" />
+            {{ labelMes(props.row.mes) }}
+            <span class="float-right">{{ brl(props.row.subtotal) }}</span>
+          </q-td>
+        </q-tr>
+        <template v-else>
+          <q-tr :props="props" class="cursor-pointer" @click="alternar(props.row.id)">
+            <q-td key="descricao" :props="props">
+              <q-icon
+                :name="expandidos.has(props.row.id) ? 'expand_more' : 'chevron_right'"
+                size="18px"
+                class="q-mr-xs text-grey"
+              />
+              {{ props.row.descricao }}
+            </q-td>
+            <q-td key="categoria" :props="props">
+              <CdCategoriaChip
+                :nome="nomeCategoria(props.row.categoriaId)"
+                :cor="corCategoria(props.row.categoriaId)"
+              />
+            </q-td>
+            <q-td key="carteira" :props="props">{{ nomeCarteira(props.row.carteiraId) }}</q-td>
+            <q-td key="valor" :props="props" class="text-right">
+              <span class="cd-money cd-money--neg">− {{ brl(props.row.valor) }}</span>
+            </q-td>
+            <q-td key="dataVencimento" :props="props">
+              <span :class="{ 'cd-venc-atrasado': ehAtrasado(props.row) }">
+                <q-icon v-if="ehAtrasado(props.row)" name="warning" size="14px" class="q-mr-xs" />
+                {{ formatarData(props.row.dataVencimento) }}
+              </span>
+            </q-td>
+            <q-td key="status" :props="props"><CdStatusBadge :status="props.row.status" /></q-td>
+            <q-td key="acoes" :props="props" class="text-right">
+              <q-btn
+                v-if="props.row.status !== 'PAGO'"
+                flat
+                dense
+                round
+                icon="paid"
+                color="positive"
+                @click.stop="pagar(props.row)"
+              >
+                <q-tooltip>Marcar como paga</q-tooltip>
+              </q-btn>
+              <q-btn
+                flat
+                dense
+                round
+                icon="delete"
+                color="negative"
+                @click.stop="remover(props.row)"
+              />
+            </q-td>
+          </q-tr>
+          <!-- Detalhe expansível -->
+          <q-tr v-if="expandidos.has(props.row.id)" :props="props" class="cd-detalhe-row">
+            <q-td colspan="100%">
+              <div class="row q-col-gutter-md text-caption q-py-xs">
+                <div><b>Competência:</b> {{ formatarData(props.row.dataCompetencia) }}</div>
+                <div><b>Vencimento:</b> {{ formatarData(props.row.dataVencimento) }}</div>
+                <div><b>Pagamento:</b> {{ formatarData(props.row.dataPagamento) }}</div>
+                <div><b>Carteira:</b> {{ nomeCarteira(props.row.carteiraId) }}</div>
+              </div>
+            </q-td>
+          </q-tr>
+        </template>
       </template>
     </q-table>
 
@@ -142,6 +286,8 @@ import { useCarteirasStore } from 'stores/carteiras'
 import { useCategoriaStore } from 'stores/categorias'
 import { recorrenciasService } from 'src/services/recorrencias'
 import type { Lancamento } from 'src/services/lancamentos'
+import CdStatusBadge from 'components/CdStatusBadge.vue'
+import CdCategoriaChip from 'components/CdCategoriaChip.vue'
 
 const { t } = useI18n()
 
@@ -150,10 +296,29 @@ const store = useDespesasStore()
 const carteiras = useCarteirasStore()
 const categorias = useCategoriaStore()
 
+// Ordem lógica de status (atrasado é o mais urgente)
+const STATUS_ORDEM: Record<string, number> = { ATRASADO: 0, PENDENTE: 1, PAGO: 2 }
+
 const colunas = [
   { name: 'descricao', label: 'Nome', field: 'descricao', align: 'left' as const, sortable: true },
-  { name: 'categoria', label: 'Categoria', field: 'categoriaId', align: 'left' as const },
-  { name: 'carteira', label: 'Carteira', field: 'carteiraId', align: 'left' as const },
+  {
+    name: 'categoria',
+    label: 'Categoria',
+    field: 'categoriaId',
+    align: 'left' as const,
+    sortable: true,
+    sort: (_a: unknown, _b: unknown, ra: Lancamento, rb: Lancamento) =>
+      nomeCategoria(ra.categoriaId).localeCompare(nomeCategoria(rb.categoriaId))
+  },
+  {
+    name: 'carteira',
+    label: 'Carteira',
+    field: 'carteiraId',
+    align: 'left' as const,
+    sortable: true,
+    sort: (_a: unknown, _b: unknown, ra: Lancamento, rb: Lancamento) =>
+      nomeCarteira(ra.carteiraId).localeCompare(nomeCarteira(rb.carteiraId))
+  },
   {
     name: 'valor',
     label: 'Valor',
@@ -167,10 +332,45 @@ const colunas = [
     label: 'Vencimento',
     field: 'dataVencimento',
     align: 'left' as const,
+    sortable: true,
     format: (v: string) => formatarData(v)
   },
-  { name: 'status', label: 'Status', field: 'status', align: 'left' as const },
+  {
+    name: 'status',
+    label: 'Status',
+    field: 'status',
+    align: 'left' as const,
+    sortable: true,
+    sort: (a: string | null, b: string | null) =>
+      (STATUS_ORDEM[a ?? ''] ?? 9) - (STATUS_ORDEM[b ?? ''] ?? 9)
+  },
   { name: 'acoes', label: '', field: 'acoes', align: 'right' as const }
+]
+
+const MESES = [
+  'Janeiro',
+  'Fevereiro',
+  'Março',
+  'Abril',
+  'Maio',
+  'Junho',
+  'Julho',
+  'Agosto',
+  'Setembro',
+  'Outubro',
+  'Novembro',
+  'Dezembro'
+]
+const mesOpcoes = MESES.map((nome, i) => ({ label: nome, value: i + 1 }))
+const anoAtual = new Date().getFullYear()
+const anoOpcoes = Array.from({ length: 7 }, (_, i) => {
+  const y = anoAtual - 4 + i
+  return { label: String(y), value: y }
+})
+const statusOpcoes = [
+  { label: 'Pago', value: 'PAGO' },
+  { label: 'Pendente', value: 'PENDENTE' },
+  { label: 'Atrasado', value: 'ATRASADO' }
 ]
 
 const carteiraOpcoes = computed(() => carteiras.itens.map((c) => ({ label: c.nome, value: c.id })))
@@ -183,8 +383,93 @@ const categoriaOpcoes = computed(() =>
 function nomeCategoria(id: number) {
   return categorias.itens.find((c) => c.id === id)?.nome ?? '-'
 }
+function corCategoria(id: number) {
+  return categorias.itens.find((c) => c.id === id)?.cor ?? null
+}
 function nomeCarteira(id: number) {
   return carteiras.itens.find((c) => c.id === id)?.nome ?? '-'
+}
+
+// ===== Filtros / agrupamento / expansão =====
+const busca = ref('')
+const fStatus = ref<string | null>(null)
+const fCategoria = ref<number | null>(null)
+const fCarteira = ref<number | null>(null)
+const fMes = ref<number | null>(null)
+const fAno = ref<number | null>(null)
+const agrupar = ref(false)
+const expandidos = ref<Set<number>>(new Set())
+const paginacao = ref({ rowsPerPage: 25, sortBy: 'dataVencimento', descending: true })
+
+const hojeIso = new Date().toISOString().slice(0, 10)
+const chaveData = (r: Lancamento) => r.dataVencimento || r.dataCompetencia || ''
+const mesDe = (r: Lancamento) => chaveData(r).slice(0, 7)
+
+function ehAtrasado(r: Lancamento) {
+  if (r.status === 'ATRASADO') return true
+  return r.status !== 'PAGO' && !!r.dataVencimento && r.dataVencimento < hojeIso
+}
+
+const filtradas = computed(() => {
+  const termo = (busca.value || '').trim().toLowerCase()
+  return store.itens.filter((r) => {
+    if (termo && !r.descricao.toLowerCase().includes(termo)) return false
+    if (fStatus.value && r.status !== fStatus.value) return false
+    if (fCategoria.value && r.categoriaId !== fCategoria.value) return false
+    if (fCarteira.value && r.carteiraId !== fCarteira.value) return false
+    if (fMes.value || fAno.value) {
+      const [y, m] = mesDe(r).split('-')
+      if (fAno.value && Number(y) !== fAno.value) return false
+      if (fMes.value && Number(m) !== fMes.value) return false
+    }
+    return true
+  })
+})
+
+const total = computed(() => filtradas.value.reduce((s, r) => s + (r.valor || 0), 0))
+const totalAPagar = computed(() =>
+  filtradas.value.filter((r) => r.status !== 'PAGO').reduce((s, r) => s + (r.valor || 0), 0)
+)
+
+function labelMes(mes: string) {
+  const [y, m] = mes.split('-')
+  return `${MESES[Number(m) - 1] ?? m}/${y}`
+}
+
+// Linhas exibidas: com cabeçalhos de grupo quando "agrupar" está ativo
+const linhas = computed(() => {
+  const base = filtradas.value
+  if (!agrupar.value) return base
+  const ordenadas = [...base].sort((a, b) => chaveData(b).localeCompare(chaveData(a)))
+  const subtotais: Record<string, number> = {}
+  ordenadas.forEach((r) => {
+    const mes = mesDe(r)
+    subtotais[mes] = (subtotais[mes] || 0) + (r.valor || 0)
+  })
+  const out: (Lancamento | { __grupo: true; id: string; mes: string; subtotal: number })[] = []
+  let atual = ''
+  ordenadas.forEach((r) => {
+    const mes = mesDe(r)
+    if (mes !== atual) {
+      atual = mes
+      out.push({ __grupo: true, id: `g-${mes}`, mes, subtotal: subtotais[mes] ?? 0 })
+    }
+    out.push(r)
+  })
+  return out
+})
+
+// Ao agrupar, preserva a ordem já montada (com os cabeçalhos de grupo).
+// Quando não agrupado, sort-method fica undefined e o q-table ordena por coluna.
+function manterOrdem<T>(rows: readonly T[]): readonly T[] {
+  return rows
+}
+
+function alternar(id: number) {
+  const s = new Set(expandidos.value)
+  if (s.has(id)) s.delete(id)
+  else s.add(id)
+  expandidos.value = s
 }
 
 const tipoOpcoes = [
@@ -229,7 +514,6 @@ const form = reactive<FormDespesa>({
   primeiroVencimento: hoje()
 })
 
-// Cálculo automático total <-> por parcela
 const valorTotal = computed(() => {
   const n = form.parcelas || 0
   return form.modoValor === 'TOTAL' ? form.valorEntrada || 0 : (form.valorEntrada || 0) * n
@@ -258,12 +542,6 @@ function abrirNova() {
     primeiroVencimento: hoje()
   })
   dialog.value = true
-}
-
-function corStatus(status: string | null | undefined) {
-  if (status === 'PAGO') return 'positive'
-  if (status === 'ATRASADO') return 'negative'
-  return 'warning'
 }
 
 async function salvar() {

@@ -11,9 +11,16 @@
       :columns="colunas"
       row-key="id"
       :loading="store.carregando"
+      :pagination="{ rowsPerPage: 25, sortBy: 'nome' }"
+      :rows-per-page-options="[10, 25, 50, 100]"
       flat
       bordered
     >
+      <template #body-cell-tipo="props">
+        <q-td :props="props"
+          ><q-badge :color="tipoCor(props.row.tipo)" :label="tipoLabel(props.row.tipo)"
+        /></q-td>
+      </template>
       <template #body-cell-acoes="props">
         <q-td :props="props" class="text-right">
           <q-btn flat dense round icon="edit" @click="abrirEdicao(props.row)" />
@@ -65,9 +72,53 @@ const { t } = useI18n()
 const $q = useQuasar()
 const store = useFormaPagamentoStore()
 
+const TIPO_LABEL: Record<string, string> = {
+  DINHEIRO: 'Dinheiro',
+  PIX: 'Pix',
+  DEBITO: 'Débito',
+  CREDITO: 'Crédito',
+  BOLETO: 'Boleto',
+  TRANSFERENCIA: 'Transferência'
+}
+const TIPO_COR: Record<string, string> = {
+  DINHEIRO: 'green-7',
+  PIX: 'teal-7',
+  DEBITO: 'blue-7',
+  CREDITO: 'deep-purple-6',
+  BOLETO: 'orange-8',
+  TRANSFERENCIA: 'indigo-6'
+}
+function tipoLabel(t?: string | null) {
+  return TIPO_LABEL[t ?? ''] ?? t ?? '—'
+}
+function tipoCor(t?: string | null) {
+  return TIPO_COR[t ?? ''] ?? 'grey-6'
+}
+
 const colunas = [
   { name: 'nome', label: 'Nome', field: 'nome', align: 'left' as const, sortable: true },
-  { name: 'tipo', label: 'Tipo', field: 'tipo', align: 'left' as const, sortable: true },
+  {
+    name: 'tipo',
+    label: 'Tipo',
+    field: 'tipo',
+    align: 'left' as const,
+    sortable: true,
+    sort: (a: string | null, b: string | null) => tipoLabel(a).localeCompare(tipoLabel(b))
+  },
+  {
+    name: 'diaFechamento',
+    label: 'Fechamento',
+    field: 'diaFechamento',
+    align: 'right' as const,
+    sortable: true
+  },
+  {
+    name: 'diaVencimento',
+    label: 'Vencimento',
+    field: 'diaVencimento',
+    align: 'right' as const,
+    sortable: true
+  },
   { name: 'acoes', label: '', field: 'acoes', align: 'right' as const }
 ]
 

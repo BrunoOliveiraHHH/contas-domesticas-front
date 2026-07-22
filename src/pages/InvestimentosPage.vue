@@ -16,9 +16,33 @@
       :columns="colunas"
       row-key="id"
       :loading="store.carregando"
+      :pagination="{ rowsPerPage: 25, sortBy: 'nome' }"
+      :rows-per-page-options="[10, 25, 50, 100]"
       flat
       bordered
     >
+      <template #body-cell-tipoInvestimento="props">
+        <q-td :props="props">
+          <q-badge
+            :color="tipoCor(props.row.tipoInvestimento)"
+            :label="tipoLabel(props.row.tipoInvestimento)"
+          />
+        </q-td>
+      </template>
+      <template #body-cell-indexador="props">
+        <q-td :props="props">
+          <q-badge v-if="props.row.indexador" color="grey-7" outline :label="props.row.indexador" />
+          <span v-else class="text-grey">—</span>
+        </q-td>
+      </template>
+      <template #body-cell-taxaContratada="props">
+        <q-td :props="props" class="text-right">
+          <span v-if="props.row.taxaContratada != null" class="cd-money"
+            >{{ props.row.taxaContratada }}%</span
+          >
+          <span v-else class="text-grey">—</span>
+        </q-td>
+      </template>
       <template #body-cell-acoes="props">
         <q-td :props="props" class="text-right">
           <q-btn flat dense round icon="savings" color="primary" @click="abrirAporte(props.row)">
@@ -118,20 +142,76 @@ const tiposInvestimento: TipoInvestimento[] = [
 const indexadores: Indexador[] = ['SELIC', 'CDI', 'IPCA', 'PRE']
 const tiposAporte: TipoAporte[] = ['APORTE', 'RESGATE']
 
+const TIPO_LABEL: Record<string, string> = {
+  RENDA_FIXA: 'Renda fixa',
+  RENDA_VARIAVEL: 'Renda variável',
+  FUNDO: 'Fundo',
+  CRIPTO: 'Cripto',
+  PREVIDENCIA: 'Previdência',
+  POUPANCA: 'Poupança',
+  RESERVA_EMERGENCIA: 'Reserva'
+}
+const TIPO_COR: Record<string, string> = {
+  RENDA_FIXA: 'blue-7',
+  RENDA_VARIAVEL: 'pink-7',
+  FUNDO: 'purple-6',
+  CRIPTO: 'amber-8',
+  PREVIDENCIA: 'teal-7',
+  POUPANCA: 'green-7',
+  RESERVA_EMERGENCIA: 'deep-purple-6'
+}
+function tipoLabel(t?: string | null) {
+  return TIPO_LABEL[t ?? ''] ?? t ?? '—'
+}
+function tipoCor(t?: string | null) {
+  return TIPO_COR[t ?? ''] ?? 'grey-6'
+}
+
 const colunas = [
   { name: 'nome', label: 'Nome', field: 'nome', align: 'left' as const, sortable: true },
   {
     name: 'tipoInvestimento',
     label: 'Tipo',
     field: 'tipoInvestimento',
-    align: 'left' as const
+    align: 'left' as const,
+    sortable: true,
+    sort: (a: string | null, b: string | null) => tipoLabel(a).localeCompare(tipoLabel(b))
   },
-  { name: 'instituicao', label: 'Instituicao', field: 'instituicao', align: 'left' as const },
+  {
+    name: 'instituicao',
+    label: 'Instituição',
+    field: 'instituicao',
+    align: 'left' as const,
+    sortable: true
+  },
+  {
+    name: 'indexador',
+    label: 'Indexador',
+    field: 'indexador',
+    align: 'left' as const,
+    sortable: true
+  },
+  {
+    name: 'taxaContratada',
+    label: 'Taxa',
+    field: 'taxaContratada',
+    align: 'right' as const,
+    sortable: true
+  },
   {
     name: 'dataAplicacao',
-    label: 'Aplicacao',
+    label: 'Aplicação',
     field: 'dataAplicacao',
     align: 'left' as const,
+    sortable: true,
+    format: (v: string) => formatarData(v)
+  },
+  {
+    name: 'dataVencimento',
+    label: 'Vencimento',
+    field: 'dataVencimento',
+    align: 'left' as const,
+    sortable: true,
     format: (v: string) => formatarData(v)
   },
   { name: 'acoes', label: '', field: 'acoes', align: 'right' as const }

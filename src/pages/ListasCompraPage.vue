@@ -21,9 +21,20 @@
       :columns="colunas"
       row-key="id"
       :loading="store.carregando"
+      :pagination="{ rowsPerPage: 25, sortBy: 'data', descending: true }"
+      :rows-per-page-options="[10, 25, 50, 100]"
       flat
       bordered
     >
+      <template #body-cell-tipo="props">
+        <q-td :props="props">
+          <q-badge
+            outline
+            :color="props.row.tipo === 'CONSTRUCAO' ? 'brown-6' : 'teal-7'"
+            :label="tipoLabel(props.row.tipo)"
+          />
+        </q-td>
+      </template>
       <template #body-cell-status="props">
         <q-td :props="props">
           <q-badge :color="corStatus(props.row.status)" :label="props.row.status" />
@@ -123,17 +134,30 @@ const categorias = useCategoriaStore()
 const tipos: TipoLista[] = ['MANTIMENTOS', 'CONSTRUCAO']
 const statusOpcoes: StatusLista[] = ['ABERTA', 'FECHADA', 'ARQUIVADA']
 
+const TIPO_LABEL: Record<string, string> = { MANTIMENTOS: 'Mantimentos', CONSTRUCAO: 'Construção' }
+function tipoLabel(t?: string | null) {
+  return TIPO_LABEL[t ?? ''] ?? t ?? '—'
+}
+
 const colunas = [
   { name: 'nome', label: 'Nome', field: 'nome', align: 'left' as const, sortable: true },
-  { name: 'tipo', label: 'Tipo', field: 'tipo', align: 'left' as const },
+  {
+    name: 'tipo',
+    label: 'Tipo',
+    field: 'tipo',
+    align: 'left' as const,
+    sortable: true,
+    sort: (a: string | null, b: string | null) => tipoLabel(a).localeCompare(tipoLabel(b))
+  },
   {
     name: 'data',
     label: 'Data',
     field: 'data',
     align: 'left' as const,
+    sortable: true,
     format: (v: string) => formatarData(v)
   },
-  { name: 'status', label: 'Status', field: 'status', align: 'left' as const },
+  { name: 'status', label: 'Status', field: 'status', align: 'left' as const, sortable: true },
   { name: 'acoes', label: '', field: 'acoes', align: 'right' as const }
 ]
 

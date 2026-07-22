@@ -49,8 +49,8 @@
     >
       <template #body-cell-total="props">
         <q-td :props="props" class="text-right">
-          <span :class="props.row.total >= 0 ? 'text-positive' : 'text-negative'">
-            {{ brl(props.row.total) }}
+          <span class="cd-money" :class="props.row.total >= 0 ? 'cd-money--pos' : 'cd-money--neg'">
+            {{ props.row.total >= 0 ? '+' : '−' }} {{ brl(Math.abs(props.row.total)) }}
           </span>
         </q-td>
       </template>
@@ -107,8 +107,20 @@ async function ratear() {
 }
 
 const colunas = [
-  { name: 'usuarioLogin', label: 'Usuario', field: 'usuarioLogin', align: 'left' as const },
-  { name: 'total', label: 'Saldo (a receber / a pagar)', field: 'total', align: 'right' as const }
+  {
+    name: 'usuarioLogin',
+    label: 'Usuario',
+    field: 'usuarioLogin',
+    align: 'left' as const,
+    sortable: true
+  },
+  {
+    name: 'total',
+    label: 'Saldo (a receber / a pagar)',
+    field: 'total',
+    align: 'right' as const,
+    sortable: true
+  }
 ]
 
 const periodo = ref(new Date().toISOString().slice(0, 7))

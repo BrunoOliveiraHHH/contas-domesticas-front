@@ -29,7 +29,38 @@
       />
     </div>
 
-    <q-table :rows="store.itensLista" :columns="colunas" row-key="id" flat bordered>
+    <!-- Progresso e total estimado -->
+    <q-card flat bordered class="q-mb-md">
+      <q-card-section class="row items-center q-col-gutter-md">
+        <div class="col-12 col-md-7">
+          <div class="row items-center justify-between text-caption q-mb-xs">
+            <span>{{ comprados }}/{{ totalItens }} comprados</span>
+            <span>{{ (progresso * 100).toFixed(0) }}%</span>
+          </div>
+          <q-linear-progress
+            :value="progresso"
+            color="positive"
+            track-color="grey-3"
+            size="10px"
+            rounded
+          />
+        </div>
+        <div class="col-12 col-md-5 text-right">
+          <span class="text-caption text-grey">Total estimado</span>
+          <div class="text-h6 cd-money">{{ brl(totalEstimado) }}</div>
+        </div>
+      </q-card-section>
+    </q-card>
+
+    <q-table
+      :rows="store.itensLista"
+      :columns="colunas"
+      row-key="id"
+      :pagination="{ rowsPerPage: 25, sortBy: 'produtoNome' }"
+      :rows-per-page-options="[10, 25, 50, 100]"
+      flat
+      bordered
+    >
       <template #body-cell-mercado="props">
         <q-td :props="props">
           {{ nomeMercado(props.row.mercadoEscolhidoId) }}
@@ -133,9 +164,18 @@
         </q-card-section>
         <q-card-section>
           <q-list bordered separator>
-            <q-item v-for="c in cotacoes" :key="c.id">
+            <q-item
+              v-for="c in cotacoesOrdenadas"
+              :key="c.id"
+              :class="{ 'bg-green-1': c.precoUnitario === menorCotacao }"
+            >
               <q-item-section>{{ nomeMercado(c.mercadoId) }}</q-item-section>
-              <q-item-section side>{{ brl(c.precoUnitario) }}</q-item-section>
+              <q-item-section side>
+                <div class="row items-center q-gutter-xs">
+                  <q-badge v-if="c.precoUnitario === menorCotacao" color="positive" label="menor" />
+                  <span class="cd-money">{{ brl(c.precoUnitario) }}</span>
+                </div>
+              </q-item-section>
             </q-item>
             <q-item v-if="!cotacoes.length">
               <q-item-section class="text-grey">Sem cotacoes</q-item-section>
@@ -193,17 +233,44 @@ const unidades = useUnidadeMedidaStore()
 const listaId = Number(route.params.id)
 
 const colunas = [
-  { name: 'produtoNome', label: 'Produto', field: 'produtoNome', align: 'left' as const },
-  { name: 'quantidade', label: 'Qtd', field: 'quantidade', align: 'right' as const },
-  { name: 'mercado', label: 'Estabelecimento', field: 'mercado', align: 'left' as const },
+  {
+    name: 'produtoNome',
+    label: 'Produto',
+    field: 'produtoNome',
+    align: 'left' as const,
+    sortable: true
+  },
+  {
+    name: 'quantidade',
+    label: 'Qtd',
+    field: 'quantidade',
+    align: 'right' as const,
+    sortable: true
+  },
+  {
+    name: 'mercado',
+    label: 'Estabelecimento',
+    field: 'mercadoEscolhidoId',
+    align: 'left' as const,
+    sortable: true,
+    sort: (_a: unknown, _b: unknown, ra: ItemCompra, rb: ItemCompra) =>
+      nomeMercado(ra.mercadoEscolhidoId).localeCompare(nomeMercado(rb.mercadoEscolhidoId))
+  },
   {
     name: 'precoUnitario',
     label: 'Preco',
     field: 'precoUnitario',
     align: 'right' as const,
+    sortable: true,
     format: (v: number | null) => (v == null ? '-' : brl(v))
   },
-  { name: 'comprado', label: 'Comprado', field: 'comprado', align: 'center' as const },
+  {
+    name: 'comprado',
+    label: 'Comprado',
+    field: 'comprado',
+    align: 'center' as const,
+    sortable: true
+  },
   { name: 'acoes', label: '', field: 'acoes', align: 'right' as const }
 ]
 
@@ -222,6 +289,14 @@ function nomeMercado(id: number | null) {
   if (id == null) return '-'
   return mercados.itens.find((m) => m.id === id)?.nome ?? `#${id}`
 }
+
+// Progresso e total estimado da lista
+const totalItens = computed(() => store.itensLista.length)
+const comprados = computed(() => store.itensLista.filter((i) => i.comprado).length)
+const progresso = computed(() => (totalItens.value ? comprados.value / totalItens.value : 0))
+const totalEstimado = computed(() =>
+  store.itensLista.reduce((s, i) => s + (i.precoUnitario ?? 0) * (i.quantidade ?? 0), 0)
+)
 
 const salvando = ref(false)
 
@@ -288,6 +363,14 @@ const dialogCotacao = ref(false)
 const itemCotacao = ref<ItemCompra | null>(null)
 const cotacoes = ref<CotacaoProduto[]>([])
 const cotacaoForm = reactive<CotacaoProdutoRequest>({ mercadoId: 0, precoUnitario: 0 })
+
+// Cotações ordenadas por preço + destaque do menor
+const cotacoesOrdenadas = computed(() =>
+  [...cotacoes.value].sort((a, b) => a.precoUnitario - b.precoUnitario)
+)
+const menorCotacao = computed(() =>
+  cotacoes.value.length ? Math.min(...cotacoes.value.map((c) => c.precoUnitario)) : null
+)
 async function abrirCotacao(row: ItemCompra) {
   itemCotacao.value = row
   Object.assign(cotacaoForm, { mercadoId: 0, precoUnitario: 0 })

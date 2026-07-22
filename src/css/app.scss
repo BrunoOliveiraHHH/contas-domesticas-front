@@ -111,6 +111,61 @@ body {
   background: linear-gradient(135deg, #0d9488, #14b8a6);
 }
 
+// ===== Tabelas: leitura de métrica (números tabulares, zebra, células) =====
+.q-table tbody td {
+  font-variant-numeric: tabular-nums;
+}
+.body--light .q-table tbody tr:nth-child(even) > td {
+  background: rgba(97, 49, 120, 0.025);
+}
+.body--dark .q-table tbody tr:nth-child(even) > td {
+  background: rgba(255, 255, 255, 0.02);
+}
+// Célula de valor com sinal/cor
+.cd-money {
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.cd-money--pos {
+  color: #2e9e4b;
+}
+.cd-money--neg {
+  color: var(--cd-accent);
+}
+// Vencimento atrasado
+.cd-venc-atrasado {
+  color: #d33;
+  font-weight: 600;
+}
+// Linha de cabeçalho de grupo (agrupar por mês)
+.cd-grupo-row td {
+  background: var(--cd-bg) !important;
+  font-weight: 700;
+  color: var(--cd-primary);
+  letter-spacing: 0.3px;
+}
+// Linha de detalhe (expansível)
+.cd-detalhe-row td {
+  background: color-mix(in srgb, var(--cd-primary) 5%, transparent) !important;
+}
+// Barra de estoque / proporção na linha
+.cd-barra {
+  position: relative;
+  height: 8px;
+  border-radius: 6px;
+  background: var(--cd-border-light);
+  overflow: hidden;
+  min-width: 60px;
+}
+.cd-barra > span {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  border-radius: 6px;
+}
+
 // Item ativo do menu lateral
 .q-drawer .q-item.q-router-link--active {
   color: var(--cd-primary);

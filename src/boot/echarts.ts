@@ -1,7 +1,7 @@
 import { defineBoot } from '#q-app/wrappers'
 import { use } from 'echarts/core'
 import { CanvasRenderer } from 'echarts/renderers'
-import { LineChart, BarChart, PieChart } from 'echarts/charts'
+import { LineChart, BarChart, PieChart, GaugeChart } from 'echarts/charts'
 import {
   GridComponent,
   TooltipComponent,
@@ -16,6 +16,7 @@ use([
   LineChart,
   BarChart,
   PieChart,
+  GaugeChart,
   GridComponent,
   TooltipComponent,
   LegendComponent,
