@@ -14,13 +14,39 @@
         text-color="primary"
         @update:model-value="recarregar"
       />
-      <q-input
-        v-model="periodo"
-        type="month"
+      <q-select
+        v-if="modo === 'MES'"
+        v-model="mes"
+        :options="mesOpcoes"
+        :label="t('comum.mes')"
         dense
         outlined
-        :label="modo === 'ANO' ? t('comum.ano') : t('comum.mes')"
-        style="max-width: 160px"
+        emit-value
+        map-options
+        style="min-width: 130px"
+        @update:model-value="recarregar"
+      />
+      <q-select
+        v-if="modo === 'SEMESTRE'"
+        v-model="semestre"
+        :options="semestreOpcoes"
+        label="Semestre"
+        dense
+        outlined
+        emit-value
+        map-options
+        style="min-width: 150px"
+        @update:model-value="recarregar"
+      />
+      <q-select
+        v-model="ano"
+        :options="anoOpcoes"
+        :label="t('comum.ano')"
+        dense
+        outlined
+        emit-value
+        map-options
+        style="min-width: 110px"
         @update:model-value="recarregar"
       />
     </div>
@@ -65,7 +91,7 @@
               :option="donutOption"
               autoresize
             />
-            <div v-else class="text-grey q-py-lg text-center">Sem despesas no periodo.</div>
+            <div v-else class="text-grey q-py-lg text-center">Sem despesas no período.</div>
           </q-card-section>
         </q-card>
       </div>
@@ -102,7 +128,7 @@
           <q-card-section>
             <div class="cd-section-title q-mb-md">Detalhamento por categoria</div>
             <div v-if="!store.despesasPorCategoria.length" class="text-grey">
-              Sem despesas no periodo.
+              Sem despesas no período.
             </div>
             <div v-for="c in store.despesasPorCategoria" :key="c.categoriaId" class="q-mb-md">
               <div class="row items-center q-mb-xs">
@@ -137,13 +163,49 @@ import { formatarMoeda, rotuloMesCurto } from 'src/utils/format'
 const { t } = useI18n()
 
 const store = useRelatoriosStore()
-const periodo = ref(store.periodo)
+
+const agora = new Date()
 const modo = ref<ModoPeriodo>(store.modo)
+const ano = ref(agora.getFullYear())
+const mes = ref(agora.getMonth() + 1)
+const semestre = ref(agora.getMonth() + 1 <= 6 ? 1 : 2)
+
 const modoOpcoes = [
   { label: t('comum.mes'), value: 'MES' },
   { label: t('comum.semestre'), value: 'SEMESTRE' },
   { label: t('comum.ano'), value: 'ANO' }
 ]
+const MESES = [
+  'Janeiro',
+  'Fevereiro',
+  'Março',
+  'Abril',
+  'Maio',
+  'Junho',
+  'Julho',
+  'Agosto',
+  'Setembro',
+  'Outubro',
+  'Novembro',
+  'Dezembro'
+]
+const mesOpcoes = MESES.map((nome, i) => ({ label: nome, value: i + 1 }))
+const semestreOpcoes = [
+  { label: '1o semestre', value: 1 },
+  { label: '2o semestre', value: 2 }
+]
+const anoOpcoes = Array.from({ length: 7 }, (_, i) => {
+  const y = agora.getFullYear() - 4 + i
+  return { label: String(y), value: y }
+})
+
+// Ancora YYYY-MM conforme o modo (semestre -> mes 01 ou 07)
+const anchor = computed(() => {
+  const p = (n: number) => String(n).padStart(2, '0')
+  if (modo.value === 'MES') return `${ano.value}-${p(mes.value)}`
+  if (modo.value === 'SEMESTRE') return `${ano.value}-${semestre.value === 1 ? '01' : '07'}`
+  return `${ano.value}-01`
+})
 
 const CORES = [
   '#613178',
@@ -221,11 +283,11 @@ const evolucaoOption = computed(() => {
 })
 
 function recarregar() {
-  store.carregar(periodo.value, modo.value)
+  store.carregar(anchor.value, modo.value)
 }
 
 onMounted(() => {
-  store.carregar(periodo.value, modo.value)
+  store.carregar(anchor.value, modo.value)
 })
 </script>
 

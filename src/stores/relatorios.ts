@@ -36,19 +36,24 @@ function ultimosMeses(fim: string, n: number): string[] {
 }
 
 // Meses de agregacao conforme o modo.
+// Ancora YYYY-MM: para SEMESTRE, o mes indica o semestre (<=06 = 1o, >=07 = 2o).
 function mesesDoModo(anchor: string, modo: ModoPeriodo): string[] {
-  const [y] = anchor.split('-').map(Number)
+  const [y, m] = anchor.split('-').map(Number)
   if (modo === 'ANO') {
     return Array.from({ length: 12 }, (_, i) => `${y}-${String(i + 1).padStart(2, '0')}`)
   }
-  return ultimosMeses(anchor, modo === 'SEMESTRE' ? 6 : 1)
+  if (modo === 'SEMESTRE') {
+    const inicio = (m as number) <= 6 ? 1 : 7
+    return Array.from({ length: 6 }, (_, i) => `${y}-${String(inicio + i).padStart(2, '0')}`)
+  }
+  return [anchor] // MES
 }
 
 function rotuloPeriodo(anchor: string, modo: ModoPeriodo): string {
-  const [y, m] = anchor.split('-')
+  const [y, m] = anchor.split('-').map(Number)
   if (modo === 'ANO') return String(y)
-  if (modo === 'SEMESTRE') return `Semestre ate ${m}/${y}`
-  return `${m}/${y}`
+  if (modo === 'SEMESTRE') return `${(m as number) <= 6 ? '1o' : '2o'} semestre ${y}`
+  return `${String(m).padStart(2, '0')}/${y}`
 }
 
 export const useRelatoriosStore = defineStore('relatorios', {
@@ -67,7 +72,8 @@ export const useRelatoriosStore = defineStore('relatorios', {
       if (modo) this.modo = modo
 
       const mesesAgg = mesesDoModo(this.periodo, this.modo)
-      const mesesEvo = this.modo === 'ANO' ? mesesAgg : ultimosMeses(this.periodo, 6)
+      // Evolucao: MES mostra os ultimos 6 meses (tendencia); SEMESTRE/ANO mostram o proprio periodo.
+      const mesesEvo = this.modo === 'MES' ? ultimosMeses(this.periodo, 6) : mesesAgg
 
       this.carregando = true
       try {
