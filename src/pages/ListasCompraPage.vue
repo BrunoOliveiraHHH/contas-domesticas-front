@@ -1,7 +1,7 @@
 <template>
   <q-page class="q-pa-md">
     <div class="row items-center q-mb-md">
-      <div class="text-h6">Listas de compra</div>
+      <div class="text-h6">{{ t('titulos.listasCompra') }}</div>
       <q-space />
       <q-select
         v-model="filtroStatus"
@@ -102,6 +102,7 @@
 </template>
 
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
 import { formatarData } from 'src/utils/format'
 import { computed, onMounted, reactive, ref } from 'vue'
 import { useQuasar } from 'quasar'
@@ -110,6 +111,8 @@ import { useComprasStore } from 'stores/compras'
 import { useCarteirasStore } from 'stores/carteiras'
 import { useCategoriaStore } from 'stores/categorias'
 import type { ListaCompra, ListaCompraRequest, StatusLista, TipoLista } from 'src/services/compras'
+
+const { t } = useI18n()
 
 const $q = useQuasar()
 const router = useRouter()

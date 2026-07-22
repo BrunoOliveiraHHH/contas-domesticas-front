@@ -1,7 +1,7 @@
 <template>
   <q-page class="q-pa-md">
     <div class="row items-center q-mb-md">
-      <div class="text-h6">Recorrencias</div>
+      <div class="text-h6">{{ t('titulos.recorrencias') }}</div>
       <q-space />
       <q-btn color="primary" icon="add" label="Nova" @click="abrirNova" />
     </div>
@@ -91,12 +91,15 @@
 </template>
 
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
 import { computed, onMounted, reactive, ref } from 'vue'
 import { useQuasar } from 'quasar'
 import { useRecorrenciasStore } from 'stores/recorrencias'
 import { useCarteirasStore } from 'stores/carteiras'
 import { useCategoriaStore } from 'stores/categorias'
 import type { Recorrencia, RecorrenciaRequest, Frequencia } from 'src/services/recorrencias'
+
+const { t } = useI18n()
 
 const $q = useQuasar()
 const store = useRecorrenciasStore()

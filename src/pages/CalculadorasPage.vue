@@ -1,6 +1,6 @@
 <template>
   <q-page class="q-pa-md">
-    <div class="text-h6 q-mb-md">Calculadoras</div>
+    <div class="text-h6 q-mb-md">{{ t('titulos.calculadoras') }}</div>
 
     <q-tabs v-model="aba" dense align="left" class="text-primary q-mb-md">
       <q-tab name="investimento" label="Investimento" />
@@ -125,11 +125,14 @@
 </template>
 
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
 import { formatarMoeda } from 'src/utils/format'
 import { computed, reactive, ref } from 'vue'
 import { useQuasar } from 'quasar'
 import { parametrosService } from 'src/services/configuracao'
 import { calcularInvestimento, calcularFinanciamento, precoPorUnidade } from 'src/utils/calculos'
+
+const { t } = useI18n()
 
 const $q = useQuasar()
 const aba = ref('investimento')

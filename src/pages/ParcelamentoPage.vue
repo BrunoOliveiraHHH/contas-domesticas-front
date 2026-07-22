@@ -1,6 +1,6 @@
 <template>
   <q-page class="q-pa-md">
-    <div class="text-h6 q-mb-md">Compra parcelada</div>
+    <div class="text-h6 q-mb-md">{{ t('titulos.parcelamento') }}</div>
 
     <q-card flat bordered style="max-width: 480px">
       <q-card-section>
@@ -42,6 +42,7 @@
 </template>
 
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
 import { formatarMoeda, formatarData } from 'src/utils/format'
 import { computed, onMounted, reactive, ref } from 'vue'
 import { useQuasar } from 'quasar'
@@ -49,6 +50,8 @@ import { useDespesasStore } from 'stores/lancamentos'
 import { useCarteirasStore } from 'stores/carteiras'
 import { useCategoriaStore } from 'stores/categorias'
 import type { Lancamento, ParcelamentoRequest } from 'src/services/lancamentos'
+
+const { t } = useI18n()
 
 const $q = useQuasar()
 const store = useDespesasStore()

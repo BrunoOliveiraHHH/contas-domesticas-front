@@ -1,7 +1,7 @@
 <template>
   <q-page class="q-pa-md">
     <div class="row items-center q-mb-md q-gutter-sm">
-      <div class="text-h6">Dashboard</div>
+      <div class="text-h6">{{ t('titulos.dashboard') }}</div>
       <q-space />
       <q-btn-toggle
         v-model="modo"
@@ -19,7 +19,7 @@
         type="month"
         dense
         outlined
-        :label="modo === 'ANO' ? 'Ano' : 'Mes'"
+        :label="modo === 'ANO' ? t('comum.ano') : t('comum.mes')"
         style="max-width: 160px"
         @update:model-value="recarregar"
       />
@@ -128,18 +128,21 @@
 </template>
 
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
 import { computed, onMounted, ref } from 'vue'
 import VChart from 'vue-echarts'
 import { useRelatoriosStore, type ModoPeriodo } from 'stores/relatorios'
 import { formatarMoeda, rotuloMesCurto } from 'src/utils/format'
 
+const { t } = useI18n()
+
 const store = useRelatoriosStore()
 const periodo = ref(store.periodo)
 const modo = ref<ModoPeriodo>(store.modo)
 const modoOpcoes = [
-  { label: 'Mes', value: 'MES' },
-  { label: 'Semestre', value: 'SEMESTRE' },
-  { label: 'Ano', value: 'ANO' }
+  { label: t('comum.mes'), value: 'MES' },
+  { label: t('comum.semestre'), value: 'SEMESTRE' },
+  { label: t('comum.ano'), value: 'ANO' }
 ]
 
 const CORES = [

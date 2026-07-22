@@ -1,6 +1,6 @@
 <template>
   <q-page class="q-pa-md">
-    <div class="text-h6 q-mb-md">Divisao de despesas</div>
+    <div class="text-h6 q-mb-md">{{ t('titulos.divisao') }}</div>
 
     <q-card flat bordered class="q-mb-lg">
       <q-card-section>
@@ -59,12 +59,15 @@
 </template>
 
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
 import { formatarMoeda } from 'src/utils/format'
 import { computed, onMounted, ref } from 'vue'
 import { useQuasar } from 'quasar'
 import { useDespesasStore } from 'stores/lancamentos'
 import { rateiosService, type AcertoItem } from 'src/services/lancamentos'
 import { usuariosService, type Usuario } from 'src/services/usuarios'
+
+const { t } = useI18n()
 
 const $q = useQuasar()
 const store = useDespesasStore()

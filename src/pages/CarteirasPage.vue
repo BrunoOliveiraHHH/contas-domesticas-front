@@ -1,7 +1,7 @@
 <template>
   <q-page class="q-pa-md">
     <div class="row items-center q-mb-md">
-      <div class="text-h6">Carteiras</div>
+      <div class="text-h6">{{ t('titulos.carteiras') }}</div>
       <q-space />
       <q-btn color="primary" icon="add" label="Nova" @click="abrirNova" />
     </div>
@@ -51,10 +51,13 @@
 </template>
 
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
 import { onMounted, reactive, ref } from 'vue'
 import { useQuasar } from 'quasar'
 import { useCarteirasStore } from 'stores/carteiras'
 import type { Carteira, CarteiraRequest, TipoCarteira } from 'src/services/carteiras'
+
+const { t } = useI18n()
 
 const $q = useQuasar()
 const store = useCarteirasStore()

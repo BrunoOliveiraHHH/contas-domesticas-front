@@ -1,7 +1,7 @@
 <template>
   <q-page class="q-pa-md">
     <div class="row items-center q-mb-md">
-      <div class="text-h6">Sincronizacao</div>
+      <div class="text-h6">{{ t('titulos.sincronizacao') }}</div>
       <q-space />
       <q-btn
         color="primary"
@@ -56,9 +56,12 @@
 </template>
 
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
 import { ref } from 'vue'
 import { useQuasar } from 'quasar'
 import { useSyncStore } from 'stores/sync'
+
+const { t } = useI18n()
 
 const $q = useQuasar()
 const store = useSyncStore()

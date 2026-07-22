@@ -5,17 +5,17 @@
         <q-btn flat dense round icon="menu" aria-label="Menu" @click="toggleLeftDrawer" />
         <q-toolbar-title class="row items-center no-wrap">
           <q-icon name="account_balance_wallet" class="q-mr-sm" />
-          Contas Domesticas
+          {{ t('app.nome') }}
         </q-toolbar-title>
         <q-btn
           flat
           dense
           round
           :icon="dark ? 'light_mode' : 'dark_mode'"
-          :aria-label="dark ? 'Tema claro' : 'Tema escuro'"
+          :aria-label="dark ? t('comum.temaClaro') : t('comum.temaEscuro')"
           @click="alternarTema"
         />
-        <q-btn flat dense round icon="logout" aria-label="Sair" @click="sair" />
+        <q-btn flat dense round icon="logout" :aria-label="t('comum.sair')" @click="sair" />
       </q-toolbar>
     </q-header>
 
@@ -37,11 +37,13 @@
 
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 import { useQuasar } from 'quasar'
 import { useAuthStore } from 'stores/auth'
 import { usePreferenciasStore } from 'stores/preferencias'
 
+const { t } = useI18n()
 const $q = useQuasar()
 const preferencias = usePreferenciasStore()
 onMounted(() => {
@@ -61,25 +63,25 @@ function alternarTema() {
   localStorage.setItem('cd_dark', dark.value ? '1' : '0')
 }
 
-// Menu (vai crescendo conforme as features sao adicionadas)
+// Menu (labels via i18n)
 const links = [
-  { label: 'Dashboard', icon: 'dashboard', to: '/' },
-  { label: 'Receitas', icon: 'trending_up', to: '/receitas' },
-  { label: 'Despesas', icon: 'trending_down', to: '/despesas' },
-  { label: 'Recorrencias', icon: 'autorenew', to: '/recorrencias' },
-  { label: 'Parcelamento', icon: 'credit_card', to: '/parcelamento' },
-  { label: 'Divisao', icon: 'groups', to: '/divisao' },
-  { label: 'Carteiras', icon: 'account_balance_wallet', to: '/carteiras' },
-  { label: 'Categorias', icon: 'category', to: '/categorias' },
-  { label: 'Formas de pagamento', icon: 'payments', to: '/formas-pagamento' },
-  { label: 'Mercados', icon: 'store', to: '/mercados' },
-  { label: 'Unidades', icon: 'straighten', to: '/unidades-medida' },
-  { label: 'Produtos', icon: 'inventory_2', to: '/produtos' },
-  { label: 'Compras', icon: 'shopping_cart', to: '/listas-compra' },
-  { label: 'Investimentos', icon: 'savings', to: '/investimentos' },
-  { label: 'Calculadoras', icon: 'calculate', to: '/calculadoras' },
-  { label: 'Configuracao', icon: 'settings', to: '/configuracao' },
-  { label: 'Sincronizacao', icon: 'sync', to: '/sincronizacao' }
+  { label: t('nav.dashboard'), icon: 'dashboard', to: '/' },
+  { label: t('nav.receitas'), icon: 'trending_up', to: '/receitas' },
+  { label: t('nav.despesas'), icon: 'trending_down', to: '/despesas' },
+  { label: t('nav.recorrencias'), icon: 'autorenew', to: '/recorrencias' },
+  { label: t('nav.parcelamento'), icon: 'credit_card', to: '/parcelamento' },
+  { label: t('nav.divisao'), icon: 'groups', to: '/divisao' },
+  { label: t('nav.carteiras'), icon: 'account_balance_wallet', to: '/carteiras' },
+  { label: t('nav.categorias'), icon: 'category', to: '/categorias' },
+  { label: t('nav.formasPagamento'), icon: 'payments', to: '/formas-pagamento' },
+  { label: t('nav.mercados'), icon: 'store', to: '/mercados' },
+  { label: t('nav.unidades'), icon: 'straighten', to: '/unidades-medida' },
+  { label: t('nav.produtos'), icon: 'inventory_2', to: '/produtos' },
+  { label: t('nav.compras'), icon: 'shopping_cart', to: '/listas-compra' },
+  { label: t('nav.investimentos'), icon: 'savings', to: '/investimentos' },
+  { label: t('nav.calculadoras'), icon: 'calculate', to: '/calculadoras' },
+  { label: t('nav.configuracao'), icon: 'settings', to: '/configuracao' },
+  { label: t('nav.sincronizacao'), icon: 'sync', to: '/sincronizacao' }
 ]
 
 const router = useRouter()

@@ -1,7 +1,7 @@
 <template>
   <q-page class="q-pa-md">
     <div class="row items-center q-mb-md">
-      <div class="text-h6">Investimentos</div>
+      <div class="text-h6">{{ t('titulos.investimentos') }}</div>
       <q-space />
       <q-badge
         color="primary"
@@ -85,6 +85,7 @@
 </template>
 
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
 import { formatarMoeda, formatarData } from 'src/utils/format'
 import { computed, onMounted, reactive, ref } from 'vue'
 import { useQuasar } from 'quasar'
@@ -98,6 +99,8 @@ import type {
   Indexador,
   TipoAporte
 } from 'src/services/investimentos'
+
+const { t } = useI18n()
 
 const $q = useQuasar()
 const store = useInvestimentosStore()
