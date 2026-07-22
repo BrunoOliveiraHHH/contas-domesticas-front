@@ -11,7 +11,7 @@ export default defineConfig(function (/* ctx */) {
 
     build: {
       target: { browser: ['es2019', 'edge88', 'firefox78', 'chrome87', 'safari13.1'] },
-      vueRouterMode: 'hash',
+      vueRouterMode: 'history',
       env: {
         API_URL: process.env.API_URL || 'http://localhost:8080'
       }
