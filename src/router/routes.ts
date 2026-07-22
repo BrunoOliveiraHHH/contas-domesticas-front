@@ -66,7 +66,7 @@ const routes: RouteRecordRaw[] = [
         name: 'parcelamento',
         component: () => import('pages/ParcelamentoPage.vue')
       },
-      { path: 'rateio', name: 'rateio', component: () => import('pages/RateioPage.vue') },
+      { path: 'divisao', name: 'divisao', component: () => import('pages/RateioPage.vue') },
       {
         path: 'sincronizacao',
         name: 'sincronizacao',

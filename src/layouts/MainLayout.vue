@@ -68,7 +68,7 @@ const links = [
   { label: 'Despesas', icon: 'trending_down', to: '/despesas' },
   { label: 'Recorrencias', icon: 'autorenew', to: '/recorrencias' },
   { label: 'Parcelamento', icon: 'credit_card', to: '/parcelamento' },
-  { label: 'Rateio', icon: 'groups', to: '/rateio' },
+  { label: 'Divisao', icon: 'groups', to: '/divisao' },
   { label: 'Carteiras', icon: 'account_balance_wallet', to: '/carteiras' },
   { label: 'Categorias', icon: 'category', to: '/categorias' },
   { label: 'Formas de pagamento', icon: 'payments', to: '/formas-pagamento' },

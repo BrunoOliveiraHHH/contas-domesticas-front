@@ -1,10 +1,10 @@
 <template>
   <q-page class="q-pa-md">
-    <div class="text-h6 q-mb-md">Rateio</div>
+    <div class="text-h6 q-mb-md">Divisao de despesas</div>
 
     <q-card flat bordered class="q-mb-lg">
       <q-card-section>
-        <div class="text-subtitle1 q-mb-sm">Ratear uma despesa (divisao igual)</div>
+        <div class="text-subtitle1 q-mb-sm">Dividir uma despesa (partes iguais)</div>
         <div class="q-gutter-md" style="max-width: 480px">
           <q-select
             v-model="despesaId"
@@ -22,7 +22,7 @@
             multiple
             use-chips
           />
-          <q-btn color="primary" label="Ratear igualmente" :loading="rateando" @click="ratear" />
+          <q-btn color="primary" label="Dividir igualmente" :loading="rateando" @click="ratear" />
         </div>
       </q-card-section>
     </q-card>
@@ -94,10 +94,10 @@ async function ratear() {
       tipo: 'IGUAL',
       participantes: participantes.value.map((usuarioId) => ({ usuarioId }))
     })
-    $q.notify({ type: 'positive', message: 'Despesa rateada' })
+    $q.notify({ type: 'positive', message: 'Despesa dividida' })
     await carregarAcerto()
   } catch {
-    $q.notify({ type: 'negative', message: 'Erro ao ratear' })
+    $q.notify({ type: 'negative', message: 'Erro ao dividir' })
   } finally {
     rateando.value = false
   }
