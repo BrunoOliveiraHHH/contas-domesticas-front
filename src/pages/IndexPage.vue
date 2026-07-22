@@ -1,7 +1,7 @@
 <template>
   <q-page class="q-pa-md">
     <div class="row items-center q-mb-md">
-      <div class="text-h6 text-weight-bold" style="color: var(--cd-primary)">Dashboard</div>
+      <div class="text-h6">Dashboard</div>
       <q-space />
       <q-input
         v-model="periodo"
@@ -14,7 +14,7 @@
       />
     </div>
 
-    <!-- KPIs em gradiente (identico ao projeto anterior) -->
+    <!-- KPIs em gradiente -->
     <div class="row q-col-gutter-md">
       <div class="col-12 col-sm-6 col-md-3">
         <div class="cd-kpi rec">
@@ -42,6 +42,39 @@
       </div>
     </div>
 
+    <!-- Graficos -->
+    <div class="row q-col-gutter-md q-mt-none">
+      <div class="col-12 col-md-5">
+        <q-card flat class="cd-card">
+          <q-card-section>
+            <div class="cd-section-title q-mb-sm">Despesas por categoria</div>
+            <VChart
+              v-if="store.despesasPorCategoria.length"
+              class="cd-chart"
+              :option="donutOption"
+              autoresize
+            />
+            <div v-else class="text-grey q-py-lg text-center">Sem despesas no periodo.</div>
+          </q-card-section>
+        </q-card>
+      </div>
+      <div class="col-12 col-md-7">
+        <q-card flat class="cd-card">
+          <q-card-section>
+            <div class="cd-section-title q-mb-sm">Evolucao (6 meses)</div>
+            <VChart
+              v-if="store.evolucao.length"
+              class="cd-chart"
+              :option="evolucaoOption"
+              autoresize
+            />
+            <div v-else class="text-grey q-py-lg text-center">Sem dados.</div>
+          </q-card-section>
+        </q-card>
+      </div>
+    </div>
+
+    <!-- Patrimonio + lista por categoria -->
     <div class="row q-col-gutter-md q-mt-none">
       <div class="col-12 col-md-4">
         <q-card flat class="cd-card full-height">
@@ -53,11 +86,10 @@
           </q-card-section>
         </q-card>
       </div>
-
       <div class="col-12 col-md-8">
         <q-card flat class="cd-card">
           <q-card-section>
-            <div class="cd-section-title q-mb-md">Despesas por categoria</div>
+            <div class="cd-section-title q-mb-md">Detalhamento por categoria</div>
             <div v-if="!store.despesasPorCategoria.length" class="text-grey">
               Sem despesas no periodo.
             </div>
@@ -86,13 +118,32 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
+import VChart from 'vue-echarts'
 import { useRelatoriosStore } from 'stores/relatorios'
 
 const store = useRelatoriosStore()
 const periodo = ref(store.periodo)
 
+const CORES = [
+  '#613178',
+  '#d82a76',
+  '#8b5a96',
+  '#3b82f6',
+  '#43a047',
+  '#f59e0b',
+  '#c72d7b',
+  '#5b6bb5',
+  '#9b59b6',
+  '#b07cc6'
+]
+
 function brl(valor: number) {
   return valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
+}
+
+function rotuloMes(p: string) {
+  const [y, m] = p.split('-')
+  return `${m}/${(y ?? '').slice(2)}`
 }
 
 const comprometimento = computed(() => {
@@ -100,6 +151,59 @@ const comprometimento = computed(() => {
   const d = store.saldo?.despesas ?? 0
   if (r <= 0) return '0'
   return ((d / r) * 100).toFixed(0)
+})
+
+const donutOption = computed(() => ({
+  color: CORES,
+  tooltip: { trigger: 'item', formatter: '{b}: R$ {c} ({d}%)' },
+  legend: { bottom: 0, type: 'scroll', textStyle: { color: '#8888aa' } },
+  series: [
+    {
+      type: 'pie',
+      radius: ['45%', '72%'],
+      avoidLabelOverlap: true,
+      itemStyle: { borderRadius: 6, borderColor: 'transparent', borderWidth: 2 },
+      label: { show: false },
+      data: store.despesasPorCategoria.map((c) => ({ name: c.categoriaNome, value: c.total }))
+    }
+  ]
+}))
+
+const evolucaoOption = computed(() => {
+  const labels = store.evolucao.map((e) => rotuloMes(e.periodo))
+  return {
+    tooltip: { trigger: 'axis' },
+    legend: { bottom: 0, textStyle: { color: '#8888aa' } },
+    grid: { left: 8, right: 8, top: 16, bottom: 44, containLabel: true },
+    xAxis: { type: 'category', data: labels, axisLabel: { color: '#8888aa' } },
+    yAxis: {
+      type: 'value',
+      axisLabel: { color: '#8888aa' },
+      splitLine: { lineStyle: { color: 'rgba(136,136,170,.2)' } }
+    },
+    series: [
+      {
+        name: 'Receitas',
+        type: 'bar',
+        data: store.evolucao.map((e) => e.receitas),
+        itemStyle: { color: '#43a047', borderRadius: [4, 4, 0, 0] }
+      },
+      {
+        name: 'Despesas',
+        type: 'bar',
+        data: store.evolucao.map((e) => e.despesas),
+        itemStyle: { color: '#d82a76', borderRadius: [4, 4, 0, 0] }
+      },
+      {
+        name: 'Saldo',
+        type: 'line',
+        smooth: true,
+        data: store.evolucao.map((e) => e.saldo),
+        itemStyle: { color: '#613178' },
+        lineStyle: { width: 3 }
+      }
+    ]
+  }
 })
 
 function recarregar() {
@@ -110,3 +214,10 @@ onMounted(() => {
   store.carregar(periodo.value)
 })
 </script>
+
+<style scoped>
+.cd-chart {
+  height: 280px;
+  width: 100%;
+}
+</style>

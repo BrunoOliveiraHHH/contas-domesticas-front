@@ -103,3 +103,66 @@ body {
   border-right: 3px solid var(--cd-accent);
   font-weight: 600;
 }
+
+// ===== Padronizacao global (aplica a todas as paginas) =====
+
+// Titulo de pagina na cor primary (nao afeta dialogs, que ficam fora do q-page)
+.q-page > .row .text-h6,
+.q-page > .text-h6 {
+  color: var(--cd-primary);
+  font-weight: 700;
+}
+
+// Cartoes arredondados no estilo do projeto anterior
+.q-card {
+  border-radius: 14px;
+}
+.body--light .q-card {
+  border: 1px solid var(--cd-border-light);
+  box-shadow: var(--cd-shadow-sm);
+}
+
+// Tabelas: cabecalho em primary/uppercase, container arredondado
+.q-table__container {
+  border-radius: 12px;
+}
+.q-table thead th {
+  color: var(--cd-primary);
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: 12px;
+  letter-spacing: 0.3px;
+}
+.q-table tbody td {
+  font-size: 13px;
+}
+.body--light .q-table tbody tr:hover > td {
+  background: rgba(97, 49, 120, 0.05);
+}
+
+// Badges de status um pouco mais destacados
+.q-badge {
+  font-weight: 700;
+  letter-spacing: 0.2px;
+  padding: 3px 8px;
+  border-radius: 10px;
+}
+
+// Botao primario com leve realce
+.q-btn.bg-primary,
+.q-btn[color='primary'] {
+  box-shadow: var(--cd-shadow-sm);
+}
+
+// Cartao "hero" clicavel (grid de features / home)
+.cd-tile {
+  border-radius: 14px;
+  transition:
+    transform 0.12s ease,
+    box-shadow 0.12s ease;
+  cursor: pointer;
+}
+.cd-tile:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--cd-shadow);
+}
